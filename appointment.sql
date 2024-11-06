@@ -8,7 +8,7 @@ CREATE TABLE Patient (
     Name VARCHAR(50) NOT NULL,
     LastName1 VARCHAR(50) NOT NULL,
     LastName2 VARCHAR(50) NOT NULL,
-    Email VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
     Phone BIGINT NOT NULL,
     City VARCHAR(100) NOT NULL
 );
@@ -63,3 +63,18 @@ CREATE TABLE Appointment (
     CONSTRAINT fk_appointment_office FOREIGN KEY (OfficeID) REFERENCES Office (ID)
 );
 
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_createPatient//
+CREATE PROCEDURE p_createPatient(
+    IN in_Name VARCHAR(80),
+    IN in_LastName1 VARCHAR(80),
+    IN in_LastName2 VARCHAR(80),
+    IN in_Email VARCHAR(100),
+    IN in_Phone VARCHAR(10),
+    IN in_City VARCHAR(100)
+)
+BEGIN
+	INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City) VALUES
+		(in_Name, in_LastName1, in_LastName2, in_Email, in_Phone, in_City);
+END//
+DELIMITER ;
