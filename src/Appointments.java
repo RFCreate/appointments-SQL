@@ -1,3 +1,5 @@
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -128,7 +130,50 @@ public class Appointments {
     }
 
     private static void createAppointment() {
+        ResultSet rs = null;
         try {
+            rs = db.stmt.executeQuery("CALL p_availableSpecialties();");
+            System.out.println();
+            System.out.println("Available Specialties");
+            System.out.println("---------------------");
+
+            while (rs.next()) {
+                System.out.print("ID:" + rs.getInt(1));
+                System.out.print("Name:" + rs.getString(2));
+                System.out.print("Description:" + rs.getString(3));
+            }
+            System.out.println();
+            System.out.print("Enter Specialty ID: ");
+            String specialtyID = scanner.nextLine();
+
+            rs = db.stmt.executeQuery("CALL p_officeXspecialty(%s);".formatted(specialtyID));
+            System.out.println();
+            System.out.println("Available Offices for specialty");
+            System.out.println("-------------------------------");
+
+            while (rs.next()) {
+                System.out.print("ID:" + rs.getInt(1));
+                System.out.print("Name:" + rs.getString(2));
+                System.out.print("Adress:" + rs.getString(3));
+                System.out.print("City:" + rs.getString(4));
+            }
+            System.out.println();
+            System.out.print("Office ID: ");
+            String officeID = scanner.nextLine();
+
+            System.out.print("Appointment Time (hh:mm:ss): ");
+            String appointmentTime = scanner.nextLine();
+            System.out.print("Appointment Date (YYYY-MM-DD): ");
+            String appointmentDate = scanner.nextLine();
+
+            CallableStatement cstmt = db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
+            cstmt.setInt(1, patientID);
+            cstmt.setString(2, specialtyID);
+            cstmt.setString(3, officeID);
+            cstmt.setString(4, appointmentTime);
+            cstmt.setString(5, appointmentDate);
+            cstmt.execute();
+            System.out.println("Success creating appointment!");
 
         } catch (SQLException sqlException) {
             System.err.println("Error creating appointment:");

@@ -36,14 +36,14 @@ public class Patient {
     }
 
     public void createPatient() throws SQLException {
-        CallableStatement stmt = Appointments.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?)}");
-        stmt.setString(1, name);
-        stmt.setString(2, lastName1);
-        stmt.setString(3, lastName2);
-        stmt.setString(4, email);
-        stmt.setString(5, phone);
-        stmt.setString(6, city);
-        stmt.execute();
+        CallableStatement cstmt = Appointments.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?)}");
+        cstmt.setString(1, name);
+        cstmt.setString(2, lastName1);
+        cstmt.setString(3, lastName2);
+        cstmt.setString(4, email);
+        cstmt.setString(5, phone);
+        cstmt.setString(6, city);
+        cstmt.execute();
     }
 
     public int getID() throws SQLException {
@@ -58,10 +58,10 @@ public class Patient {
 
     private static int getPatientFromEmail(String email) throws SQLException {
         String query = String.format("SELECT ID FROM Patient WHERE Email = '%s';", email);
-        ResultSet result = Appointments.db.stmt.executeQuery(query);
-        if (!result.next()) {
+        ResultSet rs = Appointments.db.stmt.executeQuery(query);
+        if (!rs.next()) {
             throw new SQLException("Patient with email '" + email + "' does not exist");
         }
-        return result.getInt(1);
+        return rs.getInt(1);
     }
 }
