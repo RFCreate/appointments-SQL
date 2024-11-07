@@ -225,7 +225,16 @@ public class Appointments {
 
     private static void deleteAppointment() {
         try {
+            System.out.println();
+            System.out.print("Enter Appointment ID: ");
+            int appointmentID = scanner.nextInt();
+            scanner.nextLine();
 
+            db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
+
+        } catch (InputMismatchException e) {
+            System.err.println("Invalid ID!");
+            scanner.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error deleting appointment:");
             System.err.println(sqlException.getMessage());

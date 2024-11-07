@@ -22,7 +22,7 @@ public class Patient {
             System.out.print("Email: ");
             email = scanner.nextLine();
             System.out.print("Phone: ");
-            phone = Integer.parseInt(scanner.next());
+            phone = Integer.parseInt(scanner.nextLine());
             System.out.print("City: ");
             city = scanner.nextLine();
         } catch (NumberFormatException e) {
