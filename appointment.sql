@@ -55,8 +55,8 @@ CREATE TABLE Appointment (
     OfficeID INT NOT NULL,
     ScheduleTime TIME NOT NULL,
     ScheduleDate DATE NOT NULL,
-    AppointmentTime TIME NOT NULL,
-    AppointmentDate DATE NOT NULL,
+    Time TIME NOT NULL,
+    Date DATE NOT NULL,
     CONSTRAINT fk_appointment_patient FOREIGN KEY (PatientID) REFERENCES Patient (ID),
     CONSTRAINT fk_appointment_doctor FOREIGN KEY (DoctorID) REFERENCES Doctor (ID),
     CONSTRAINT fk_appointment_specialty FOREIGN KEY (SpecialtyID) REFERENCES Specialty (ID),
@@ -143,8 +143,8 @@ CREATE PROCEDURE p_createAppointment(
     IN in_PatientID INT,
     IN in_SpecialtyID INT,
     IN in_OfficeID INT,
-    IN in_AppointmentTime TIME,
-    IN in_AppointmentDate DATE
+    IN in_Time TIME,
+    IN in_Date DATE
 )
 BEGIN
 	DECLARE error_message VARCHAR(255);
@@ -176,16 +176,14 @@ BEGIN
     END IF;
 
     -- Insert new appointment
-    INSERT INTO Cita (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleTime, ScheduleDate, AppointmentTime, AppointmentDate)
-    VALUES (in_PatientID, l_DoctorID, in_SpecialtyID, in_OfficeID, current_time(), current_date(), in_AppointmentTime, in_AppointmentDate);
+    INSERT INTO Cita (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleTime, ScheduleDate, Time, Date)
+    VALUES (in_PatientID, l_DoctorID, in_SpecialtyID, in_OfficeID, current_time(), current_date(), in_Time, in_Date);
 END//
 DELIMITER ;
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_checkAppointmentID//
-CREATE PROCEDURE p_checkAppointmentID(
-    IN in_AppointmentID INT
-)
+CREATE PROCEDURE p_checkAppointmentID(IN in_AppointmentID INT)
 BEGIN
     DECLARE error_message VARCHAR(255);
     -- Check if AppointmentID exists
@@ -198,9 +196,7 @@ DELIMITER ;
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_viewAppointment//
-CREATE PROCEDURE p_viewAppointment(
-	IN in_AppointmentID INT
-)
+CREATE PROCEDURE p_viewAppointment(IN in_AppointmentID INT)
 BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
 
@@ -209,7 +205,7 @@ BEGIN
         concat(p.Name, p.LastName1, p.LastName2) AS PatientName,
         concat(d.Name, d.LastName1, d.LastName2) AS DoctorName,
         s.Name AS SpecialtyName, o.Name AS OfficeName,
-        a.AppointmentTime, a.AppointmentDate
+        a.Time, a.Date
     FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     INNER JOIN Doctor d ON d.ID = a.DoctorID
@@ -231,30 +227,38 @@ BEGIN
 
 	-- Fill variables if passed empty
     IF in_NewTime IS NULL THEN
-		SELECT AppointmentTime INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
+		SELECT Time INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
 	END IF;
 
 	-- Fill variables if passed empty
     IF in_NewDate IS NULL THEN
-		SELECT AppointmentDate INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
+		SELECT Date INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
 	END IF;
 
     -- Update existing appointment
     UPDATE Appointment
-    SET AppointmentTime = in_NewTime, AppointmentDate = in_NewDate
+    SET Time = in_NewTime, Date = in_NewDate
     WHERE ID = in_AppointmentID;
 END//
 DELIMITER ;
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_deleteAppointment//
-CREATE PROCEDURE p_deleteAppointment(
-	IN in_AppointmentID INT
-)
+CREATE PROCEDURE p_deleteAppointment(IN in_AppointmentID INT)
 BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
 
     -- Delete existing appointment
     DELETE FROM Appointment WHERE ID = in_AppointmentID;
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_appointmentPerPatient//
+CREATE PROCEDURE p_appointmentPerPatient(IN in_PatientID INT)
+BEGIN
+    SELECT a.ID, a.Time, a.Date FROM Appointment a
+    INNER JOIN Patient p ON p.ID = a.PatientID
+    WHERE p.ID = in_PatientID;
 END//
 DELIMITER ;

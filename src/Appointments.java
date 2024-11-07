@@ -139,8 +139,8 @@ public class Appointments {
 
             while (rs.next()) {
                 System.out.print("ID:" + rs.getInt(1));
-                System.out.print("Name:" + rs.getString(2));
-                System.out.print("Description:" + rs.getString(3));
+                System.out.print(", Name:" + rs.getString(2));
+                System.out.print(", Description:" + rs.getString(3));
             }
             System.out.println();
             System.out.print("Enter Specialty ID: ");
@@ -154,9 +154,9 @@ public class Appointments {
 
             while (rs.next()) {
                 System.out.print("ID:" + rs.getInt(1));
-                System.out.print("Name:" + rs.getString(2));
-                System.out.print("Adress:" + rs.getString(3));
-                System.out.print("City:" + rs.getString(4));
+                System.out.print(", Name:" + rs.getString(2));
+                System.out.print(", Adress:" + rs.getString(3));
+                System.out.print(", City:" + rs.getString(4));
             }
             System.out.println();
             System.out.print("Office ID: ");
@@ -164,16 +164,16 @@ public class Appointments {
             scanner.nextLine();
 
             System.out.print("Appointment Time (hh:mm): ");
-            String appointmentTime = scanner.nextLine();
+            String time = scanner.nextLine();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
-            String appointmentDate = scanner.nextLine();
+            String date = scanner.nextLine();
 
             CallableStatement cstmt = db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
             cstmt.setInt(1, patientID);
             cstmt.setInt(2, specialtyID);
             cstmt.setInt(3, officeID);
-            cstmt.setString(4, appointmentTime);
-            cstmt.setString(5, appointmentDate);
+            cstmt.setString(4, time);
+            cstmt.setString(5, date);
             cstmt.execute();
             System.out.println("Success creating appointment!");
 
@@ -195,8 +195,24 @@ public class Appointments {
         }
     }
 
+    private static void viewAppointmentsShort() {
+        try {
+            ResultSet rs = db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(patientID));
+            while (rs.next()) {
+                System.out.print("ID:" + rs.getInt(1));
+                System.out.print(", Time:" + rs.getString(3));
+                System.out.print(", Date:" + rs.getString(2));
+            }
+        } catch (SQLException sqlException) {
+            System.err.println("Error viewing appointment:");
+            System.err.println(sqlException.getMessage());
+        }
+    }
+
     private static void updateAppointment() {
         try {
+            System.out.println();
+            viewAppointmentsShort();
             System.out.println();
             System.out.print("Enter Appointment ID: ");
             int appointmentID = scanner.nextInt();
@@ -204,14 +220,14 @@ public class Appointments {
 
             System.out.println("Leave blank to not modify.");
             System.out.print("New Appointment Time (hh:mm): ");
-            String appointmentTime = scanner.nextLine();
+            String time = scanner.nextLine();
             System.out.print("New Appointment Date (YYYY-MM-DD): ");
-            String appointmentDate = scanner.nextLine();
+            String date = scanner.nextLine();
 
             CallableStatement stmt = db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
             stmt.setInt(1, appointmentID);
-            stmt.setString(2, appointmentTime);
-            stmt.setString(3, appointmentDate);
+            stmt.setString(2, time);
+            stmt.setString(3, date);
             stmt.execute();
 
         } catch (InputMismatchException e) {
@@ -225,6 +241,8 @@ public class Appointments {
 
     private static void deleteAppointment() {
         try {
+            System.out.println();
+            viewAppointment();
             System.out.println();
             System.out.print("Enter Appointment ID: ");
             int appointmentID = scanner.nextInt();
