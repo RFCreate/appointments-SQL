@@ -144,7 +144,8 @@ public class Appointments {
             }
             System.out.println();
             System.out.print("Enter Specialty ID: ");
-            String specialtyID = scanner.nextLine();
+            int specialtyID = scanner.nextInt();
+            scanner.nextLine();
 
             rs = db.stmt.executeQuery("CALL p_officeXspecialty(%s);".formatted(specialtyID));
             System.out.println();
@@ -159,22 +160,26 @@ public class Appointments {
             }
             System.out.println();
             System.out.print("Office ID: ");
-            String officeID = scanner.nextLine();
+            int officeID = scanner.nextInt();
+            scanner.nextLine();
 
-            System.out.print("Appointment Time (hh:mm:ss): ");
+            System.out.print("Appointment Time (hh:mm): ");
             String appointmentTime = scanner.nextLine();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
             String appointmentDate = scanner.nextLine();
 
             CallableStatement cstmt = db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
             cstmt.setInt(1, patientID);
-            cstmt.setString(2, specialtyID);
-            cstmt.setString(3, officeID);
+            cstmt.setInt(2, specialtyID);
+            cstmt.setInt(3, officeID);
             cstmt.setString(4, appointmentTime);
             cstmt.setString(5, appointmentDate);
             cstmt.execute();
             System.out.println("Success creating appointment!");
 
+        } catch (InputMismatchException e) {
+            System.err.println("Invalid ID!");
+            scanner.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error creating appointment:");
             System.err.println(sqlException.getMessage());
@@ -192,7 +197,26 @@ public class Appointments {
 
     private static void updateAppointment() {
         try {
+            System.out.println();
+            System.out.print("Enter Appointment ID: ");
+            int appointmentID = scanner.nextInt();
+            scanner.nextLine();
 
+            System.out.println("Leave blank to not modify.");
+            System.out.print("New Appointment Time (hh:mm): ");
+            String appointmentTime = scanner.nextLine();
+            System.out.print("New Appointment Date (YYYY-MM-DD): ");
+            String appointmentDate = scanner.nextLine();
+
+            CallableStatement stmt = db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
+            stmt.setInt(1, appointmentID);
+            stmt.setString(2, appointmentTime);
+            stmt.setString(3, appointmentDate);
+            stmt.execute();
+
+        } catch (InputMismatchException e) {
+            System.err.println("Invalid ID!");
+            scanner.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error updating appointment:");
             System.err.println(sqlException.getMessage());

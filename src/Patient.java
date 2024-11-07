@@ -8,25 +8,29 @@ public class Patient {
     private String lastName1;
     private String lastName2;
     private String email;
-    private String phone;
+    private int phone;
     private String city;
 
     public Patient(Scanner scanner) {
-        System.out.print("Name: ");
-        name = scanner.nextLine();
-        System.out.print("First Last Name: ");
-        lastName1 = scanner.nextLine();
-        System.out.print("Second Last Name: ");
-        lastName2 = scanner.nextLine();
-        System.out.print("Email: ");
-        email = scanner.nextLine();
-        System.out.print("Phone: ");
-        phone = scanner.nextLine();
-        System.out.print("City: ");
-        city = scanner.nextLine();
+        try {
+            System.out.print("Name: ");
+            name = scanner.nextLine();
+            System.out.print("First Last Name: ");
+            lastName1 = scanner.nextLine();
+            System.out.print("Second Last Name: ");
+            lastName2 = scanner.nextLine();
+            System.out.print("Email: ");
+            email = scanner.nextLine();
+            System.out.print("Phone: ");
+            phone = Integer.parseInt(scanner.next());
+            System.out.print("City: ");
+            city = scanner.nextLine();
+        } catch (NumberFormatException e) {
+            scanner.nextLine();
+        }
     }
 
-    public Patient(String name, String lastName1, String lastName2, String email, String phone, String city) {
+    public Patient(String name, String lastName1, String lastName2, String email, int phone, String city) {
         this.name = name;
         this.lastName1 = lastName1;
         this.lastName2 = lastName2;
@@ -41,7 +45,7 @@ public class Patient {
         cstmt.setString(2, lastName1);
         cstmt.setString(3, lastName2);
         cstmt.setString(4, email);
-        cstmt.setString(5, phone);
+        cstmt.setInt(5, phone);
         cstmt.setString(6, city);
         cstmt.execute();
     }
