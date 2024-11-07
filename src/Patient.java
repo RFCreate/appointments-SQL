@@ -1,7 +1,6 @@
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class Patient {
     private String name;
@@ -11,22 +10,22 @@ public class Patient {
     private int phone;
     private String city;
 
-    public Patient(Scanner scanner) {
+    public Patient() {
         try {
             System.out.print("Name: ");
-            name = scanner.nextLine();
+            name = Main.sc.nextLine();
             System.out.print("First Last Name: ");
-            lastName1 = scanner.nextLine();
+            lastName1 = Main.sc.nextLine();
             System.out.print("Second Last Name: ");
-            lastName2 = scanner.nextLine();
+            lastName2 = Main.sc.nextLine();
             System.out.print("Email: ");
-            email = scanner.nextLine();
+            email = Main.sc.nextLine();
             System.out.print("Phone: ");
-            phone = Integer.parseInt(scanner.nextLine());
+            phone = Integer.parseInt(Main.sc.nextLine());
             System.out.print("City: ");
-            city = scanner.nextLine();
+            city = Main.sc.nextLine();
         } catch (NumberFormatException e) {
-            scanner.nextLine();
+            Main.sc.nextLine();
         }
     }
 
@@ -40,7 +39,7 @@ public class Patient {
     }
 
     public void createPatient() throws SQLException {
-        CallableStatement cstmt = Appointments.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?)}");
+        CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?)}");
         cstmt.setString(1, name);
         cstmt.setString(2, lastName1);
         cstmt.setString(3, lastName2);
@@ -54,15 +53,15 @@ public class Patient {
         return getPatientFromEmail(this.email);
     }
 
-    public static int getPatientFromEmail(Scanner scanner) throws SQLException {
+    public static int getPatientFromEmail() throws SQLException {
         System.out.print("Patient Email: ");
-        String email = scanner.nextLine();
+        String email = Main.sc.nextLine();
         return getPatientFromEmail(email);
     }
 
     private static int getPatientFromEmail(String email) throws SQLException {
         String query = String.format("SELECT ID FROM Patient WHERE Email = '%s';", email);
-        ResultSet rs = Appointments.db.stmt.executeQuery(query);
+        ResultSet rs = Main.db.stmt.executeQuery(query);
         if (!rs.next())
             throw new SQLException("Patient with email '" + email + "' does not exist.");
         return rs.getInt(1);

@@ -5,137 +5,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Scanner;
 
 public class Appointments {
 
-    private static Scanner scanner;
-    private static int patientID = -1;
-    public static DBConnector db;
-
-    public static void main(String[] args) {
-
-        scanner = new Scanner(System.in);
-        db = new DBConnector();
-
-        System.out.println("Welcome to your appointments app!");
-
-        mainMenu();
-        scanner.close();
-        db.finalize();
-    }
-
-    private static void mainMenu() {
-        boolean exit = false;
-        while (!exit) {
-            if (patientID == -1) {
-                exit = idMenu();
-            } else {
-                appointmentMenu();
-            }
-        }
-    }
-
-    private static boolean idMenu() {
-        int choice = 0;
-        while (true) {
-            System.out.println();
-            System.out.println("1) Create new patient");
-            System.out.println("2) Use existing email");
-            System.out.println("3) Exit.");
-
-            try {
-                System.out.print("Choose action: ");
-                choice = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                choice = 0;
-            } finally {
-                scanner.nextLine();
-            }
-
-            if (choice == 3) {
-                patientID = -1;
-                return true;
-            }
-
-            switch (choice) {
-                case 1:
-                    try {
-                        Patient patient = new Patient(scanner);
-                        patient.createPatient();
-                        patientID = patient.getID();
-                        return false;
-                    } catch (SQLException sqlException) {
-                        System.err.println("Error creating patient:");
-                        System.err.println(sqlException.getMessage());
-                    }
-                    break;
-                case 2:
-                    try {
-                        patientID = Patient.getPatientFromEmail(scanner);
-                        return false;
-                    } catch (SQLException sqlException) {
-                        System.err.println("Error retriving patient:");
-                        System.err.println(sqlException.getMessage());
-                    }
-                    break;
-                default:
-                    System.err.println("Invalid choice!");
-                    break;
-            }
-
-        }
-    }
-
-    private static void appointmentMenu() {
-        int choice = 0;
-        while (true) {
-            System.out.println();
-            System.out.println("ID: " + patientID);
-            System.out.println("1) Create appointment");
-            System.out.println("2) View Appointment");
-            System.out.println("3) Update appointment");
-            System.out.println("4) Delete appointment");
-            System.out.println("5) Go back.");
-
-            try {
-                System.out.print("Choose action: ");
-                choice = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                choice = 0;
-            } finally {
-                scanner.nextLine();
-            }
-
-            if (choice == 5) {
-                patientID = -1;
-                break;
-            }
-
-            switch (choice) {
-                case 1:
-                    createAppointment();
-                    break;
-                case 2:
-                    viewAppointment();
-                    break;
-                case 3:
-                    updateAppointment();
-                    break;
-                case 4:
-                    deleteAppointment();
-                    break;
-                default:
-                    System.err.println("Invalid choice!");
-                    break;
-            }
-        }
-    }
-
-    private static void createAppointment() {
+    public static void createAppointment() {
         ResultSet rs = null;
         try {
-            rs = db.stmt.executeQuery("CALL p_availableSpecialties();");
+            rs = Main.db.stmt.executeQuery("CALL p_availableSpecialties();");
             System.out.println();
             System.out.println("Available Specialties");
             System.out.println("---------------------");
@@ -147,10 +23,10 @@ public class Appointments {
             }
             System.out.println();
             System.out.print("Enter Specialty ID: ");
-            int specialtyID = scanner.nextInt();
-            scanner.nextLine();
+            int specialtyID = Main.sc.nextInt();
+            Main.sc.nextLine();
 
-            rs = db.stmt.executeQuery("CALL p_officeXspecialty(%s);".formatted(specialtyID));
+            rs = Main.db.stmt.executeQuery("CALL p_officeXspecialty(%s);".formatted(specialtyID));
             System.out.println();
             System.out.println("Available Offices for specialty");
             System.out.println("-------------------------------");
@@ -163,16 +39,16 @@ public class Appointments {
             }
             System.out.println();
             System.out.print("Office ID: ");
-            int officeID = scanner.nextInt();
-            scanner.nextLine();
+            int officeID = Main.sc.nextInt();
+            Main.sc.nextLine();
 
             System.out.print("Appointment Time (hh:mm): ");
-            String time = scanner.nextLine();
+            String time = Main.sc.nextLine();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
-            String date = scanner.nextLine();
+            String date = Main.sc.nextLine();
 
-            CallableStatement cstmt = db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
-            cstmt.setInt(1, patientID);
+            CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
+            cstmt.setInt(1, Main.patientID);
             cstmt.setInt(2, specialtyID);
             cstmt.setInt(3, officeID);
             cstmt.setString(4, time);
@@ -182,16 +58,16 @@ public class Appointments {
 
         } catch (InputMismatchException e) {
             System.err.println("Invalid ID!");
-            scanner.nextLine();
+            Main.sc.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error creating appointment:");
             System.err.println(sqlException.getMessage());
         }
     }
 
-    private static void viewAppointment() {
+    public static void viewAppointment() {
         try {
-            ResultSet rs = db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(patientID));
+            ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(Main.patientID));
             ResultSetMetaData rsmd = rs.getMetaData();
             while (rs.next()) {
                 System.out.println("{");
@@ -209,9 +85,9 @@ public class Appointments {
 
     private static List<Integer> viewAppointmentsShort() throws SQLException {
         List<Integer> appointments = new ArrayList<>();
-        ResultSet rs = db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(patientID));
+        ResultSet rs = Main.db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(Main.patientID));
         if (!rs.next())
-            throw new SQLException("Patient '" + patientID + "' does not have appointments.");
+            throw new SQLException("Patient '" + Main.patientID + "' does not have appointments.");
         do {
             appointments.add(rs.getInt(1));
             System.out.print("ID:" + rs.getInt(1));
@@ -226,24 +102,24 @@ public class Appointments {
         List<Integer> appointments = viewAppointmentsShort();
         System.out.println();
         System.out.print("Enter Appointment ID: ");
-        int appointmentID = scanner.nextInt();
-        scanner.nextLine();
+        int appointmentID = Main.sc.nextInt();
+        Main.sc.nextLine();
         if (!appointments.contains(appointmentID))
             throw new SQLException("Patient does not have AppointmentID '" + appointmentID + "'.");
         return appointmentID;
     }
 
-    private static void updateAppointment() {
+    public static void updateAppointment() {
         try {
             int appointmentID = checkAppointmentFromPatient();
 
             System.out.println("Leave blank to not modify.");
             System.out.print("New Appointment Time (hh:mm): ");
-            String time = scanner.nextLine();
+            String time = Main.sc.nextLine();
             System.out.print("New Appointment Date (YYYY-MM-DD): ");
-            String date = scanner.nextLine();
+            String date = Main.sc.nextLine();
 
-            CallableStatement stmt = db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
+            CallableStatement stmt = Main.db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
             stmt.setInt(1, appointmentID);
             stmt.setString(2, time);
             stmt.setString(3, date);
@@ -251,22 +127,22 @@ public class Appointments {
 
         } catch (InputMismatchException e) {
             System.err.println("Invalid ID!");
-            scanner.nextLine();
+            Main.sc.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error updating appointment:");
             System.err.println(sqlException.getMessage());
         }
     }
 
-    private static void deleteAppointment() {
+    public static void deleteAppointment() {
         try {
             int appointmentID = checkAppointmentFromPatient();
 
-            db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
+            Main.db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
 
         } catch (InputMismatchException e) {
             System.err.println("Invalid ID!");
-            scanner.nextLine();
+            Main.sc.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error deleting appointment:");
             System.err.println(sqlException.getMessage());
