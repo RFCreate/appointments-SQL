@@ -1,7 +1,10 @@
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Appointments {
@@ -188,6 +191,15 @@ public class Appointments {
 
     private static void viewAppointment() {
         try {
+            ResultSet rs = db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(patientID));
+            ResultSetMetaData rsmd = rs.getMetaData();
+            while (rs.next()) {
+                System.out.println("{");
+                for (int i = 0; i < rsmd.getColumnCount(); i++) {
+                    System.out.println("\t%s: %s".formatted(rsmd.getColumnName(i), rs.getObject(i)));
+                }
+                System.out.println("}");
+            }
 
         } catch (SQLException sqlException) {
             System.err.println("Error viewing appointment:");
@@ -195,28 +207,35 @@ public class Appointments {
         }
     }
 
-    private static void viewAppointmentsShort() {
-        try {
-            ResultSet rs = db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(patientID));
-            while (rs.next()) {
-                System.out.print("ID:" + rs.getInt(1));
-                System.out.print(", Time:" + rs.getString(3));
-                System.out.print(", Date:" + rs.getString(2));
-            }
-        } catch (SQLException sqlException) {
-            System.err.println("Error viewing appointment:");
-            System.err.println(sqlException.getMessage());
-        }
+    private static List<Integer> viewAppointmentsShort() throws SQLException {
+        List<Integer> appointments = new ArrayList<>();
+        ResultSet rs = db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(patientID));
+        if (!rs.next())
+            throw new SQLException("Patient '" + patientID + "' does not have appointments.");
+        do {
+            appointments.add(rs.getInt(1));
+            System.out.print("ID:" + rs.getInt(1));
+            System.out.print(", Time:" + rs.getString(3));
+            System.out.print(", Date:" + rs.getString(2));
+        } while (rs.next());
+        return appointments;
+    }
+
+    private static int checkAppointmentFromPatient() throws SQLException {
+        System.out.println();
+        List<Integer> appointments = viewAppointmentsShort();
+        System.out.println();
+        System.out.print("Enter Appointment ID: ");
+        int appointmentID = scanner.nextInt();
+        scanner.nextLine();
+        if (!appointments.contains(appointmentID))
+            throw new SQLException("Patient does not have AppointmentID '" + appointmentID + "'.");
+        return appointmentID;
     }
 
     private static void updateAppointment() {
         try {
-            System.out.println();
-            viewAppointmentsShort();
-            System.out.println();
-            System.out.print("Enter Appointment ID: ");
-            int appointmentID = scanner.nextInt();
-            scanner.nextLine();
+            int appointmentID = checkAppointmentFromPatient();
 
             System.out.println("Leave blank to not modify.");
             System.out.print("New Appointment Time (hh:mm): ");
@@ -241,12 +260,7 @@ public class Appointments {
 
     private static void deleteAppointment() {
         try {
-            System.out.println();
-            viewAppointment();
-            System.out.println();
-            System.out.print("Enter Appointment ID: ");
-            int appointmentID = scanner.nextInt();
-            scanner.nextLine();
+            int appointmentID = checkAppointmentFromPatient();
 
             db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
 

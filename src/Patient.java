@@ -63,9 +63,8 @@ public class Patient {
     private static int getPatientFromEmail(String email) throws SQLException {
         String query = String.format("SELECT ID FROM Patient WHERE Email = '%s';", email);
         ResultSet rs = Appointments.db.stmt.executeQuery(query);
-        if (!rs.next()) {
-            throw new SQLException("Patient with email '" + email + "' does not exist");
-        }
+        if (!rs.next())
+            throw new SQLException("Patient with email '" + email + "' does not exist.");
         return rs.getInt(1);
     }
 }
