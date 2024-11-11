@@ -1,23 +1,27 @@
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnector {
-
-    private static final String URL = "jdbc:mysql://localhost:3306/Appointments";
-    private static final String USER = "root";
-    private static final String PASSWORD = "mysql";
 
     public Connection conn;
     public Statement stmt;
 
     public DBConnector() {
         try {
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            Properties mysqlProperties = new Properties();
+            mysqlProperties.load(new FileInputStream("mysql.properties"));
+            final String URL = mysqlProperties.getProperty("url");
+            final String USERNAME = mysqlProperties.getProperty("username");
+            final String PASSWORD = mysqlProperties.getProperty("password");
+            conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
             stmt = conn.createStatement();
-        } catch (SQLException sqlException) {
-            System.err.println(sqlException);
+        } catch (SQLException | IOException e) {
+            System.out.println(e);
             System.exit(1);
         }
     }
