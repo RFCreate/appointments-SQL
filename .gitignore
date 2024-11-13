@@ -1,3 +1,6 @@
+# Properties file to connect to database
+mysql.properties
+
 # Compiled class file
 *.class
 
