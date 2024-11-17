@@ -14,10 +14,10 @@ public class Main {
         db = new DBConnector();
 
         System.out.println("Welcome to your appointments app!");
-
         mainMenu();
+
         sc.close();
-        db.finalize();
+        db.close();
     }
 
     private static void mainMenu() {

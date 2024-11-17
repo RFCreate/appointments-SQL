@@ -26,7 +26,7 @@ public class DBConnector {
         }
     }
 
-    public void finalize() {
+    public void close() {
         if (conn != null) {
             try {
                 conn.close();
