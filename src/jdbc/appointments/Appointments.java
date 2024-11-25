@@ -73,7 +73,7 @@ public class Appointments {
             ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(Main.patientID));
             ResultSetMetaData rsmd = rs.getMetaData();
             if (!rs.next())
-                throw new SQLException("Patient '" + Main.patientID + "' does not have appointments.");
+                throw new SQLException("Patient does not have appointments.");
             do {
                 System.out.println("---");
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -91,25 +91,23 @@ public class Appointments {
         List<Integer> appointments = new ArrayList<>();
         ResultSet rs = Main.db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(Main.patientID));
         if (!rs.next())
-            throw new SQLException("Patient '" + Main.patientID + "' does not have appointments.");
+            throw new SQLException("Patient does not have appointments.");
         do {
             appointments.add(rs.getInt(1));
             System.out.print("ID:" + rs.getInt(1));
             System.out.print(", Time:" + rs.getString(2));
-            System.out.print(", Date:" + rs.getString(3));
+            System.out.println(", Date:" + rs.getString(3));
         } while (rs.next());
         return appointments;
     }
 
     private static int checkAppointmentFromPatient() throws SQLException {
-        System.out.println();
         List<Integer> appointments = viewAppointmentsShort();
-        System.out.println();
         System.out.print("Enter Appointment ID: ");
         int appointmentID = Main.sc.nextInt();
         Main.sc.nextLine();
         if (!appointments.contains(appointmentID))
-            throw new SQLException("Patient does not have AppointmentID '" + appointmentID + "'.");
+            throw new SQLException("Patient has no appointment with ID '" + appointmentID + "'.");
         return appointmentID;
     }
 
@@ -128,6 +126,7 @@ public class Appointments {
             stmt.setString(2, time);
             stmt.setString(3, date);
             stmt.execute();
+            System.out.println("Success updating appointment!");
 
         } catch (InputMismatchException e) {
             System.err.println("Invalid ID!");
@@ -143,6 +142,7 @@ public class Appointments {
             int appointmentID = checkAppointmentFromPatient();
 
             Main.db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
+            System.out.println("Success deleting appointment!");
 
         } catch (InputMismatchException e) {
             System.err.println("Invalid ID!");

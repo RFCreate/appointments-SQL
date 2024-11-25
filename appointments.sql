@@ -219,19 +219,19 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_updateAppointment//
 CREATE PROCEDURE p_updateAppointment(
     IN in_AppointmentID INT,
-    IN in_NewTime TIME,
-    IN in_NewDate DATE
+    IN in_NewTime VARCHAR(25),
+    IN in_NewDate VARCHAR(25)
 )
 BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
 
 	-- Fill variables if passed empty
-    IF in_NewTime IS NULL THEN
+    IF in_NewTime = "" THEN
 		SELECT Time INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
 	END IF;
 
 	-- Fill variables if passed empty
-    IF in_NewDate IS NULL THEN
+    IF in_NewDate = "" THEN
 		SELECT Date INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
 	END IF;
 
