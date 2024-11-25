@@ -150,32 +150,32 @@ CREATE PROCEDURE p_createAppointment(
     IN in_Time TIME
 )
 BEGIN
-    DECLARE error_message VARCHAR(255);
     DECLARE l_DoctorID INT;
+    DECLARE l_MESSAGE_TEXT VARCHAR(255);
 
     -- Check if PatientID exists
     IF NOT EXISTS (SELECT 1 FROM Patient WHERE ID = in_PatientID) THEN
-        SET error_message := concat("PatientID '", in_PatientID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        SET l_MESSAGE_TEXT := concat("PatientID '", in_PatientID, "' does not exists.");
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
     END IF;
 
     -- Check if SpecialtyID exists
     IF NOT EXISTS (SELECT 1 FROM Specialty WHERE ID = in_SpecialtyID) THEN
-        SET error_message := concat("SpecialtyID '", in_SpecialtyID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        SET l_MESSAGE_TEXT := concat("SpecialtyID '", in_SpecialtyID, "' does not exists.");
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
     END IF;
 
     -- Check if OfficeID exists
     IF NOT EXISTS (SELECT 1 FROM Office WHERE ID = in_OfficeID) THEN
-        SET error_message := concat("OfficeID '", in_OfficeID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        SET l_MESSAGE_TEXT := concat("OfficeID '", in_OfficeID, "' does not exists.");
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
     END IF;
 
     SET l_DoctorID = (SELECT f_getDoctor(in_SpecialtyID, in_OfficeID));
     -- Check if DoctorID exists
     IF l_DoctorID IS NULL THEN
-        SET error_message := concat("DoctorID '", in_SpecialtyID, "' in office '", in_OfficeID, "' with specialty '", in_SpecialtyID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        SET l_MESSAGE_TEXT := concat("Doctor in office '", in_OfficeID, "' with specialty '", in_SpecialtyID, "' does not exists.");
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
     END IF;
 
     -- Insert new appointment
@@ -206,11 +206,11 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_checkAppointmentID//
 CREATE PROCEDURE p_checkAppointmentID(IN in_AppointmentID INT)
 BEGIN
-    DECLARE error_message VARCHAR(255);
+    DECLARE l_MESSAGE_TEXT VARCHAR(255);
     -- Check if AppointmentID exists
     IF NOT EXISTS (SELECT 1 FROM Appointment WHERE ID = in_AppointmentID) THEN
-        SET error_message := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        SET l_MESSAGE_TEXT := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
     END IF;
 END//
 DELIMITER ;
