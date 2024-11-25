@@ -9,7 +9,7 @@ CREATE TABLE Patient (
     LastName1 VARCHAR(50) NOT NULL,
     LastName2 VARCHAR(50) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
-    Phone BIGINT NOT NULL,
+    Phone VARCHAR(25) NOT NULL,
     City VARCHAR(100) NOT NULL,
     State VARCHAR(100) NOT NULL
 );
@@ -30,7 +30,7 @@ CREATE TABLE Doctor (
     LastName1 VARCHAR(50) NOT NULL,
     LastName2 VARCHAR(50) NOT NULL,
     Email VARCHAR(100) NOT NULL,
-    Phone BIGINT NOT NULL,
+    Phone VARCHAR(25) NOT NULL,
     OfficeID INT NOT NULL,
     CONSTRAINT fk_doctor_office FOREIGN KEY (OfficeId) REFERENCES Office (ID)
 );
@@ -68,11 +68,11 @@ CREATE TABLE Appointment (
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_createPatient//
 CREATE PROCEDURE p_createPatient(
-    IN in_Name VARCHAR(80),
-    IN in_LastName1 VARCHAR(80),
-    IN in_LastName2 VARCHAR(80),
+    IN in_Name VARCHAR(50),
+    IN in_LastName1 VARCHAR(50),
+    IN in_LastName2 VARCHAR(50),
     IN in_Email VARCHAR(100),
-    IN in_Phone VARCHAR(10),
+    IN in_Phone VARCHAR(25),
     IN in_City VARCHAR(100),
     IN in_State VARCHAR(100)
 )

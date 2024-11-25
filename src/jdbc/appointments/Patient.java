@@ -9,32 +9,28 @@ public class Patient {
     private String lastName1;
     private String lastName2;
     private String email;
-    private int phone;
+    private String phone;
     private String city;
     private String state;
 
     public Patient() {
-        try {
-            System.out.print("Name: ");
-            name = Main.sc.nextLine();
-            System.out.print("First Last Name: ");
-            lastName1 = Main.sc.nextLine();
-            System.out.print("Second Last Name: ");
-            lastName2 = Main.sc.nextLine();
-            System.out.print("Email: ");
-            email = Main.sc.nextLine();
-            System.out.print("Phone: ");
-            phone = Integer.parseInt(Main.sc.nextLine());
-            System.out.print("City: ");
-            city = Main.sc.nextLine();
-            System.out.print("State: ");
-            state = Main.sc.nextLine();
-        } catch (NumberFormatException e) {
-            Main.sc.nextLine();
-        }
+        System.out.print("Name: ");
+        name = Main.sc.nextLine();
+        System.out.print("First Last Name: ");
+        lastName1 = Main.sc.nextLine();
+        System.out.print("Second Last Name: ");
+        lastName2 = Main.sc.nextLine();
+        System.out.print("Email: ");
+        email = Main.sc.nextLine();
+        System.out.print("Phone: ");
+        phone = Main.sc.nextLine();
+        System.out.print("City: ");
+        city = Main.sc.nextLine();
+        System.out.print("State: ");
+        state = Main.sc.nextLine();
     }
 
-    public Patient(String name, String lastName1, String lastName2, String email, int phone, String city, String state) {
+    public Patient(String name, String lastName1, String lastName2, String email, String phone, String city, String state) {
         this.name = name;
         this.lastName1 = lastName1;
         this.lastName2 = lastName2;
@@ -50,7 +46,7 @@ public class Patient {
         cstmt.setString(2, lastName1);
         cstmt.setString(3, lastName2);
         cstmt.setString(4, email);
-        cstmt.setInt(5, phone);
+        cstmt.setString(5, phone);
         cstmt.setString(6, city);
         cstmt.setString(7, state);
         cstmt.execute();
