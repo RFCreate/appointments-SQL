@@ -190,10 +190,9 @@ CREATE PROCEDURE p_viewAppointment(IN in_PatientID INT)
 BEGIN
     -- View existing appointment with ID changed for actual values
     SELECT a.ID,
-        concat(p.Name, p.LastName1, p.LastName2) AS PatientName,
-        concat(d.Name, d.LastName1, d.LastName2) AS DoctorName,
-        s.Name AS SpecialtyName, o.Name AS OfficeName,
-        a.Time, a.Date
+        concat_ws(" ", p.Name, p.LastName1, p.LastName2) AS Patient,
+        concat_ws(" ", d.Name, d.LastName1, d.LastName2) AS Doctor,
+        s.Name AS Specialty, o.Name AS Office, a.Time, a.Date
     FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     INNER JOIN Doctor d ON d.ID = a.DoctorID

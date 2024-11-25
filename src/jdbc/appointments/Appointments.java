@@ -74,13 +74,13 @@ public class Appointments {
             ResultSetMetaData rsmd = rs.getMetaData();
             if (!rs.next())
                 throw new SQLException("Patient '" + Main.patientID + "' does not have appointments.");
-            while (rs.next()) {
-                System.out.println("{");
-                for (int i = 0; i < rsmd.getColumnCount(); i++) {
-                    System.out.println("\t%s: %s".formatted(rsmd.getColumnName(i), rs.getObject(i)));
+            do {
+                System.out.println("---");
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    System.out.println("%s: %s".formatted(rsmd.getColumnLabel(i), rs.getObject(i)));
                 }
-                System.out.println("}");
-            }
+            } while (rs.next());
+            System.out.println("---");
         } catch (SQLException sqlException) {
             System.err.println("Error viewing appointment:");
             System.err.println(sqlException.getMessage());
