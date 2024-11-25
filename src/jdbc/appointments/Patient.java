@@ -30,16 +30,6 @@ public class Patient {
         state = Main.sc.nextLine();
     }
 
-    public Patient(String name, String lastName1, String lastName2, String email, String phone, String city, String state) {
-        this.name = name;
-        this.lastName1 = lastName1;
-        this.lastName2 = lastName2;
-        this.email = email;
-        this.phone = phone;
-        this.city = city;
-        this.state = state;
-    }
-
     public void createPatient() throws SQLException {
         CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?, ?)}");
         cstmt.setString(1, name);
@@ -52,21 +42,29 @@ public class Patient {
         cstmt.execute();
     }
 
-    public int getID() throws SQLException {
-        return getPatientFromEmail(this.email);
+    public int getId() throws SQLException {
+        return getIdFromEmail(this.email);
     }
 
-    public static int getPatientFromEmail() throws SQLException {
+    public static int getIdFromEmail() throws SQLException {
         System.out.print("Patient Email: ");
         String email = Main.sc.nextLine();
-        return getPatientFromEmail(email);
+        return getIdFromEmail(email);
     }
 
-    private static int getPatientFromEmail(String email) throws SQLException {
+    private static int getIdFromEmail(String email) throws SQLException {
         String query = String.format("SELECT ID FROM Patient WHERE Email = '%s';", email);
         ResultSet rs = Main.db.stmt.executeQuery(query);
         if (!rs.next())
             throw new SQLException("Patient with email '" + email + "' does not exist.");
         return rs.getInt(1);
+    }
+
+    public static String getEmailFromId(int id) throws SQLException {
+        String query = String.format("SELECT Email FROM Patient WHERE ID = '%s';", id);
+        ResultSet rs = Main.db.stmt.executeQuery(query);
+        if (!rs.next())
+            throw new SQLException("Patient with ID '" + id + "' does not exist.");
+        return rs.getString(1);
     }
 }

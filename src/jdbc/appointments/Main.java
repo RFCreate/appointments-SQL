@@ -8,6 +8,7 @@ public class Main {
 
     public static Scanner sc;
     public static int patientID = -1;
+    private static String patientEmail = "";
     public static DBConnector db;
 
     public static void main(String[] args) {
@@ -60,7 +61,8 @@ public class Main {
                     try {
                         Patient patient = new Patient();
                         patient.createPatient();
-                        patientID = patient.getID();
+                        patientID = patient.getId();
+                        patientEmail = Patient.getEmailFromId(patientID);
                         return false;
                     } catch (SQLException sqlException) {
                         System.err.println("Error creating patient:");
@@ -69,7 +71,8 @@ public class Main {
                     break;
                 case 2:
                     try {
-                        patientID = Patient.getPatientFromEmail();
+                        patientID = Patient.getIdFromEmail();
+                        patientEmail = Patient.getEmailFromId(patientID);
                         return false;
                     } catch (SQLException sqlException) {
                         System.err.println("Error retriving patient:");
@@ -88,7 +91,7 @@ public class Main {
         int choice = 0;
         while (true) {
             System.out.println();
-            System.out.println("ID: " + patientID);
+            System.out.println("ID: " + patientID + ", Email: " + patientEmail);
             System.out.println("1) Create appointment");
             System.out.println("2) View Appointment");
             System.out.println("3) Update appointment");
