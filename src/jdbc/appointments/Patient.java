@@ -41,7 +41,7 @@ public class Patient {
     }
 
     public void createPatient() throws SQLException {
-        CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?)}");
+        CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createPatient(?, ?, ?, ?, ?, ?, ?)}");
         cstmt.setString(1, name);
         cstmt.setString(2, lastName1);
         cstmt.setString(3, lastName2);

@@ -134,7 +134,7 @@ BEGIN
 	DECLARE l_DoctorID INT;
 	SELECT d.ID INTO l_DoctorID FROM Doctor d
 	INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
-    WHERE de.SpecialtyID = in_SpecialtyID AND d.IdConsultorio = in_OfficeID
+    WHERE de.SpecialtyID = in_SpecialtyID AND d.OfficeID = in_OfficeID
     LIMIT 1;
     RETURN l_DoctorID;
 END//
@@ -171,7 +171,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
     END IF;
 
-	SET l_DoctorID = (SELECT getDoctor(in_SpecialtyID, in_OfficeID));
+	SET l_DoctorID = (SELECT f_getDoctor(in_SpecialtyID, in_OfficeID));
     -- Check if DoctorID exists
     IF l_DoctorID IS NULL THEN
 		SET error_message := concat("DoctorID '", in_SpecialtyID, "' in office '", in_OfficeID, "' with specialty '", in_SpecialtyID, "' does not exists.");
@@ -179,8 +179,27 @@ BEGIN
     END IF;
 
     -- Insert new appointment
-    INSERT INTO Cita (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleTime, ScheduleDate, Time, Date)
+    INSERT INTO Appointment (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleTime, ScheduleDate, Time, Date)
     VALUES (in_PatientID, l_DoctorID, in_SpecialtyID, in_OfficeID, current_time(), current_date(), in_Time, in_Date);
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_viewAppointment//
+CREATE PROCEDURE p_viewAppointment(IN in_PatientID INT)
+BEGIN
+    -- View existing appointment with ID changed for actual values
+    SELECT a.ID,
+        concat(p.Name, p.LastName1, p.LastName2) AS PatientName,
+        concat(d.Name, d.LastName1, d.LastName2) AS DoctorName,
+        s.Name AS SpecialtyName, o.Name AS OfficeName,
+        a.Time, a.Date
+    FROM Appointment a
+    INNER JOIN Patient p ON p.ID = a.PatientID
+    INNER JOIN Doctor d ON d.ID = a.DoctorID
+    INNER JOIN Specialty s ON s.ID = a.SpecialtyID
+    INNER JOIN Office o ON o.ID = a.OfficeID
+    WHERE a.PatientID = in_PatientID;
 END//
 DELIMITER ;
 
@@ -194,27 +213,6 @@ BEGIN
 		SET error_message := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
     END IF;
-END//
-DELIMITER ;
-
-DELIMITER //
-DROP PROCEDURE IF EXISTS p_viewAppointment//
-CREATE PROCEDURE p_viewAppointment(IN in_AppointmentID INT)
-BEGIN
-    CALL p_checkAppointmentID(in_AppointmentID);
-
-    -- View existing appointment with ID changed for actual values
-    SELECT a.ID,
-        concat(p.Name, p.LastName1, p.LastName2) AS PatientName,
-        concat(d.Name, d.LastName1, d.LastName2) AS DoctorName,
-        s.Name AS SpecialtyName, o.Name AS OfficeName,
-        a.Time, a.Date
-    FROM Appointment a
-    INNER JOIN Patient p ON p.ID = a.PatientID
-    INNER JOIN Doctor d ON d.ID = a.DoctorID
-    INNER JOIN Specialty s ON s.ID = a.SpecialtyID
-    INNER JOIN Office o ON o.ID = a.OfficeID
-    WHERE a.ID = in_AppointmentID;
 END//
 DELIMITER ;
 
@@ -262,6 +260,6 @@ CREATE PROCEDURE p_appointmentPerPatient(IN in_PatientID INT)
 BEGIN
     SELECT a.ID, a.Time, a.Date FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
-    WHERE p.ID = in_PatientID;
+    WHERE a.PatientID = in_PatientID;
 END//
 DELIMITER ;

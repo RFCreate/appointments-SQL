@@ -21,7 +21,7 @@ public class Appointments {
             while (rs.next()) {
                 System.out.print("ID:" + rs.getInt(1));
                 System.out.print(", Name:" + rs.getString(2));
-                System.out.print(", Description:" + rs.getString(3));
+                System.out.println(", Description:" + rs.getString(3));
             }
             System.out.println();
             System.out.print("Enter Specialty ID: ");
@@ -35,10 +35,10 @@ public class Appointments {
 
             while (rs.next()) {
                 System.out.print("ID:" + rs.getInt(1));
-                System.out.print(", Name:" + rs.getString(2));
-                System.out.print(", Address:" + rs.getString(3));
-                System.out.print(", City:" + rs.getString(4));
-                System.out.print(", State:" + rs.getString(5));
+                System.out.print(", Address:" + rs.getString(2));
+                System.out.print(", City:" + rs.getString(3));
+                System.out.print(", State:" + rs.getString(4));
+                System.out.println(", Name:" + rs.getString(5));
             }
             System.out.println();
             System.out.print("Office ID: ");
@@ -72,6 +72,8 @@ public class Appointments {
         try {
             ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(Main.patientID));
             ResultSetMetaData rsmd = rs.getMetaData();
+            if (!rs.next())
+                throw new SQLException("Patient '" + Main.patientID + "' does not have appointments.");
             while (rs.next()) {
                 System.out.println("{");
                 for (int i = 0; i < rsmd.getColumnCount(); i++) {
@@ -79,7 +81,6 @@ public class Appointments {
                 }
                 System.out.println("}");
             }
-
         } catch (SQLException sqlException) {
             System.err.println("Error viewing appointment:");
             System.err.println(sqlException.getMessage());
@@ -94,8 +95,8 @@ public class Appointments {
         do {
             appointments.add(rs.getInt(1));
             System.out.print("ID:" + rs.getInt(1));
-            System.out.print(", Time:" + rs.getString(3));
-            System.out.print(", Date:" + rs.getString(2));
+            System.out.print(", Time:" + rs.getString(2));
+            System.out.print(", Date:" + rs.getString(3));
         } while (rs.next());
         return appointments;
     }
