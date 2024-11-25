@@ -10,13 +10,15 @@ CREATE TABLE Patient (
     LastName2 VARCHAR(50) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     Phone BIGINT NOT NULL,
-    City VARCHAR(100) NOT NULL
+    City VARCHAR(100) NOT NULL,
+    State VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Office (
     ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     Adress VARCHAR(255) NOT NULL,
     City VARCHAR(100) NOT NULL,
+    State VARCHAR(100) NOT NULL,
     Name VARCHAR(100) NOT NULL,
     OpeningTime TIME NOT NULL,
     ClosingTime TIME NOT NULL
@@ -71,11 +73,12 @@ CREATE PROCEDURE p_createPatient(
     IN in_LastName2 VARCHAR(80),
     IN in_Email VARCHAR(100),
     IN in_Phone VARCHAR(10),
-    IN in_City VARCHAR(100)
+    IN in_City VARCHAR(100),
+    IN in_State VARCHAR(100)
 )
 BEGIN
-	INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City) VALUES
-		(in_Name, in_LastName1, in_LastName2, in_Email, in_Phone, in_City);
+	INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City, State) VALUES
+		(in_Name, in_LastName1, in_LastName2, in_Email, in_Phone, in_City, in_State);
 END//
 DELIMITER ;
 
@@ -83,7 +86,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_availableOffices//
 CREATE PROCEDURE p_availableOffices()
 BEGIN
-	SELECT o.ID, o.Adress, o.City, o.Name
+	SELECT o.ID, o.Adress, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON d.OfficeID = o.ID;
 END//
@@ -103,7 +106,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_officeXspecialty//
 CREATE PROCEDURE p_officeXspecialty(IN in_SpecialtyID INT)
 BEGIN
-	SELECT o.ID, o.Adress, o.City, o.Name
+	SELECT o.ID, o.Adress, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON o.ID = d.OfficeID
 	INNER JOIN DoctorSpecialty ds ON d.ID = ds.DoctorID

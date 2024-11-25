@@ -11,6 +11,7 @@ public class Patient {
     private String email;
     private int phone;
     private String city;
+    private String state;
 
     public Patient() {
         try {
@@ -26,18 +27,21 @@ public class Patient {
             phone = Integer.parseInt(Main.sc.nextLine());
             System.out.print("City: ");
             city = Main.sc.nextLine();
+            System.out.print("State: ");
+            state = Main.sc.nextLine();
         } catch (NumberFormatException e) {
             Main.sc.nextLine();
         }
     }
 
-    public Patient(String name, String lastName1, String lastName2, String email, int phone, String city) {
+    public Patient(String name, String lastName1, String lastName2, String email, int phone, String city, String state) {
         this.name = name;
         this.lastName1 = lastName1;
         this.lastName2 = lastName2;
         this.email = email;
         this.phone = phone;
         this.city = city;
+        this.state = state;
     }
 
     public void createPatient() throws SQLException {
@@ -48,6 +52,7 @@ public class Patient {
         cstmt.setString(4, email);
         cstmt.setInt(5, phone);
         cstmt.setString(6, city);
+        cstmt.setString(7, state);
         cstmt.execute();
     }
 
