@@ -16,7 +16,7 @@ CREATE TABLE Patient (
 
 CREATE TABLE Office (
     ID INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    Adress VARCHAR(255) NOT NULL,
+    Address VARCHAR(255) NOT NULL,
     City VARCHAR(100) NOT NULL,
     State VARCHAR(100) NOT NULL,
     Name VARCHAR(100) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE Doctor (
     Name VARCHAR(50) NOT NULL,
     LastName1 VARCHAR(50) NOT NULL,
     LastName2 VARCHAR(50) NOT NULL,
-    Email VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
     Phone VARCHAR(25) NOT NULL,
     OfficeID INT NOT NULL,
     CONSTRAINT fk_doctor_office FOREIGN KEY (OfficeId) REFERENCES Office (ID)
@@ -86,7 +86,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_availableOffices//
 CREATE PROCEDURE p_availableOffices()
 BEGIN
-	SELECT o.ID, o.Adress, o.City, o.State, o.Name
+	SELECT o.ID, o.Address, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON d.OfficeID = o.ID;
 END//
@@ -106,7 +106,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_officeXspecialty//
 CREATE PROCEDURE p_officeXspecialty(IN in_SpecialtyID INT)
 BEGIN
-	SELECT o.ID, o.Adress, o.City, o.State, o.Name
+	SELECT o.ID, o.Address, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON o.ID = d.OfficeID
 	INNER JOIN DoctorSpecialty ds ON d.ID = ds.DoctorID

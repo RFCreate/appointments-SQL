@@ -36,7 +36,7 @@ public class Appointments {
             while (rs.next()) {
                 System.out.print("ID:" + rs.getInt(1));
                 System.out.print(", Name:" + rs.getString(2));
-                System.out.print(", Adress:" + rs.getString(3));
+                System.out.print(", Address:" + rs.getString(3));
                 System.out.print(", City:" + rs.getString(4));
                 System.out.print(", State:" + rs.getString(5));
             }
