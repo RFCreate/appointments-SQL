@@ -77,8 +77,8 @@ CREATE PROCEDURE p_createPatient(
     IN in_State VARCHAR(100)
 )
 BEGIN
-	INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City, State) VALUES
-		(in_Name, in_LastName1, in_LastName2, in_Email, in_Phone, in_City, in_State);
+    INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City, State) VALUES
+        (in_Name, in_LastName1, in_LastName2, in_Email, in_Phone, in_City, in_State);
 END//
 DELIMITER ;
 
@@ -86,7 +86,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_availableOffices//
 CREATE PROCEDURE p_availableOffices()
 BEGIN
-	SELECT o.ID, o.Address, o.City, o.State, o.Name
+    SELECT o.ID, o.Address, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON d.OfficeID = o.ID;
 END//
@@ -96,9 +96,9 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_availableSpecialties//
 CREATE PROCEDURE p_availableSpecialties()
 BEGIN
-	SELECT DISTINCT s.ID, s.Name, s.Description
-	FROM Specialty s
-	INNER JOIN DoctorSpecialty ds ON ds.SpecialtyID = s.ID;
+    SELECT DISTINCT s.ID, s.Name, s.Description
+    FROM Specialty s
+    INNER JOIN DoctorSpecialty ds ON ds.SpecialtyID = s.ID;
 END//
 DELIMITER ;
 
@@ -106,10 +106,10 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_officeXspecialty//
 CREATE PROCEDURE p_officeXspecialty(IN in_SpecialtyID INT)
 BEGIN
-	SELECT o.ID, o.Address, o.City, o.State, o.Name
+    SELECT o.ID, o.Address, o.City, o.State, o.Name
     FROM Office o
     INNER JOIN Doctor d ON o.ID = d.OfficeID
-	INNER JOIN DoctorSpecialty ds ON d.ID = ds.DoctorID
+    INNER JOIN DoctorSpecialty ds ON d.ID = ds.DoctorID
     WHERE ds.specialtyID = in_SpecialtyID;
 END//
 DELIMITER ;
@@ -118,9 +118,9 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_specialtyXoffice//
 CREATE PROCEDURE p_specialtyXoffice(in_OfficeID INT)
 BEGIN
-	SELECT DISTINCT s.ID, s.Name, s.Description
-	FROM Specialty s
-	INNER JOIN DoctorSpecialty ds ON ds.SpecialtyID = s.ID
+    SELECT DISTINCT s.ID, s.Name, s.Description
+    FROM Specialty s
+    INNER JOIN DoctorSpecialty ds ON ds.SpecialtyID = s.ID
     INNER JOIN Doctor d ON d.ID = ds.DoctorID
     WHERE d.OfficeID = in_OfficeID;
 END//
@@ -131,9 +131,9 @@ DROP FUNCTION IF EXISTS f_getDoctor//
 CREATE FUNCTION f_getDoctor(in_SpecialtyID INT, in_OfficeID INT)
 RETURNS INT DETERMINISTIC
 BEGIN
-	DECLARE l_DoctorID INT;
-	SELECT d.ID INTO l_DoctorID FROM Doctor d
-	INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
+    DECLARE l_DoctorID INT;
+    SELECT d.ID INTO l_DoctorID FROM Doctor d
+    INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
     WHERE de.SpecialtyID = in_SpecialtyID AND d.OfficeID = in_OfficeID
     LIMIT 1;
     RETURN l_DoctorID;
@@ -150,7 +150,7 @@ CREATE PROCEDURE p_createAppointment(
     IN in_Date DATE
 )
 BEGIN
-	DECLARE error_message VARCHAR(255);
+    DECLARE error_message VARCHAR(255);
     DECLARE l_DoctorID INT;
 
     -- Check if PatientID exists
@@ -171,10 +171,10 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
     END IF;
 
-	SET l_DoctorID = (SELECT f_getDoctor(in_SpecialtyID, in_OfficeID));
+    SET l_DoctorID = (SELECT f_getDoctor(in_SpecialtyID, in_OfficeID));
     -- Check if DoctorID exists
     IF l_DoctorID IS NULL THEN
-		SET error_message := concat("DoctorID '", in_SpecialtyID, "' in office '", in_OfficeID, "' with specialty '", in_SpecialtyID, "' does not exists.");
+        SET error_message := concat("DoctorID '", in_SpecialtyID, "' in office '", in_OfficeID, "' with specialty '", in_SpecialtyID, "' does not exists.");
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
     END IF;
 
@@ -209,7 +209,7 @@ BEGIN
     DECLARE error_message VARCHAR(255);
     -- Check if AppointmentID exists
     IF NOT EXISTS (SELECT 1 FROM Appointment WHERE ID = in_AppointmentID) THEN
-		SET error_message := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
+        SET error_message := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
     END IF;
 END//
@@ -225,15 +225,15 @@ CREATE PROCEDURE p_updateAppointment(
 BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
 
-	-- Fill variables if passed empty
+    -- Fill variables if passed empty
     IF in_NewTime = "" THEN
-		SELECT Time INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
-	END IF;
+        SELECT Time INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
+    END IF;
 
-	-- Fill variables if passed empty
+    -- Fill variables if passed empty
     IF in_NewDate = "" THEN
-		SELECT Date INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
-	END IF;
+        SELECT Date INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
+    END IF;
 
     -- Update existing appointment
     UPDATE Appointment
@@ -260,5 +260,29 @@ BEGIN
     SELECT a.ID, a.Time, a.Date FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     WHERE a.PatientID = in_PatientID;
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_checkFutureTimestamp//
+CREATE PROCEDURE p_checkFutureTimestamp(IN in_Date DATE, IN in_Time TIME)
+BEGIN
+    IF timestamp(in_Date, in_Time) < current_timestamp() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Appointment date and time is past now.";
+    END IF;
+END//
+
+DROP TRIGGER IF EXISTS tr_ins_checkFutureTimestamp//
+CREATE TRIGGER tr_ins_checkFutureTimestamp
+BEFORE INSERT ON Appointment FOR EACH ROW
+BEGIN
+    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
+END//
+
+DROP TRIGGER IF EXISTS tr_upd_checkFutureTimestamp//
+CREATE TRIGGER tr_upd_checkFutureTimestamp
+BEFORE UPDATE ON Appointment FOR EACH ROW
+BEGIN
+    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
 END//
 DELIMITER ;
