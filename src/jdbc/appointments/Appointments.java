@@ -45,17 +45,17 @@ public class Appointments {
             int officeID = Main.sc.nextInt();
             Main.sc.nextLine();
 
-            System.out.print("Appointment Time (hh:mm): ");
-            String time = Main.sc.nextLine();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
             String date = Main.sc.nextLine();
+            System.out.print("Appointment Time (hh:mm): ");
+            String time = Main.sc.nextLine();
 
             CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_createAppointment(?, ?, ?, ?, ?)}");
             cstmt.setInt(1, Main.patientID);
             cstmt.setInt(2, specialtyID);
             cstmt.setInt(3, officeID);
-            cstmt.setString(4, time);
-            cstmt.setString(5, date);
+            cstmt.setString(4, date);
+            cstmt.setString(5, time);
             cstmt.execute();
             System.out.println("Success creating appointment!");
 
@@ -95,8 +95,8 @@ public class Appointments {
         do {
             appointments.add(rs.getInt(1));
             System.out.print("ID:" + rs.getInt(1));
-            System.out.print(", Time:" + rs.getString(2));
-            System.out.println(", Date:" + rs.getString(3));
+            System.out.print(", Date:" + rs.getString(2));
+            System.out.println(", Time:" + rs.getString(3));
         } while (rs.next());
         return appointments;
     }
@@ -116,15 +116,15 @@ public class Appointments {
             int appointmentID = checkAppointmentFromPatient();
 
             System.out.println("Leave blank to not modify.");
-            System.out.print("New Appointment Time (hh:mm): ");
-            String time = Main.sc.nextLine();
             System.out.print("New Appointment Date (YYYY-MM-DD): ");
             String date = Main.sc.nextLine();
+            System.out.print("New Appointment Time (hh:mm): ");
+            String time = Main.sc.nextLine();
 
             CallableStatement stmt = Main.db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
             stmt.setInt(1, appointmentID);
-            stmt.setString(2, time);
-            stmt.setString(3, date);
+            stmt.setString(2, date);
+            stmt.setString(3, time);
             stmt.execute();
             System.out.println("Success updating appointment!");
 

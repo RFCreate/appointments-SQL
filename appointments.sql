@@ -55,10 +55,10 @@ CREATE TABLE Appointment (
     DoctorID INT NOT NULL,
     SpecialtyID INT NOT NULL,
     OfficeID INT NOT NULL,
-    ScheduleTime TIME NOT NULL,
     ScheduleDate DATE NOT NULL,
-    Time TIME NOT NULL,
+    ScheduleTime TIME NOT NULL,
     Date DATE NOT NULL,
+    Time TIME NOT NULL,
     CONSTRAINT fk_appointment_patient FOREIGN KEY (PatientID) REFERENCES Patient (ID),
     CONSTRAINT fk_appointment_doctor FOREIGN KEY (DoctorID) REFERENCES Doctor (ID),
     CONSTRAINT fk_appointment_specialty FOREIGN KEY (SpecialtyID) REFERENCES Specialty (ID),
@@ -146,8 +146,8 @@ CREATE PROCEDURE p_createAppointment(
     IN in_PatientID INT,
     IN in_SpecialtyID INT,
     IN in_OfficeID INT,
-    IN in_Time TIME,
-    IN in_Date DATE
+    IN in_Date DATE,
+    IN in_Time TIME
 )
 BEGIN
     DECLARE error_message VARCHAR(255);
@@ -179,8 +179,8 @@ BEGIN
     END IF;
 
     -- Insert new appointment
-    INSERT INTO Appointment (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleTime, ScheduleDate, Time, Date)
-    VALUES (in_PatientID, l_DoctorID, in_SpecialtyID, in_OfficeID, current_time(), current_date(), in_Time, in_Date);
+    INSERT INTO Appointment (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleDate, ScheduleTime, Date, Time)
+    VALUES (in_PatientID, l_DoctorID, in_SpecialtyID, in_OfficeID, current_date(), current_time(), in_Date, in_Time);
 END//
 DELIMITER ;
 
@@ -192,7 +192,7 @@ BEGIN
     SELECT a.ID,
         concat_ws(" ", p.Name, p.LastName1, p.LastName2) AS Patient,
         concat_ws(" ", d.Name, d.LastName1, d.LastName2) AS Doctor,
-        s.Name AS Specialty, o.Name AS Office, a.Time, a.Date
+        s.Name AS Specialty, o.Name AS Office, a.Date, a.Time
     FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     INNER JOIN Doctor d ON d.ID = a.DoctorID
@@ -219,25 +219,30 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_updateAppointment//
 CREATE PROCEDURE p_updateAppointment(
     IN in_AppointmentID INT,
-    IN in_NewTime VARCHAR(25),
-    IN in_NewDate VARCHAR(25)
+    IN in_Date VARCHAR(25),
+    IN in_Time VARCHAR(25)
 )
 BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
-
-    -- Fill variables if passed empty
-    IF in_NewTime = "" THEN
-        SELECT Time INTO in_NewTime FROM Appointment WHERE ID = in_AppointmentID;
+    
+    -- Exit if both variables are empty
+    IF in_Date = "" AND in_Date = "" THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Both date and time are empty.";
     END IF;
 
     -- Fill variables if passed empty
-    IF in_NewDate = "" THEN
-        SELECT Date INTO in_NewDate FROM Appointment WHERE ID = in_AppointmentID;
+    IF in_Date = "" THEN
+        SELECT Date INTO in_Date FROM Appointment WHERE ID = in_AppointmentID;
+    END IF;
+
+    -- Fill variables if passed empty
+    IF in_Time = "" THEN
+        SELECT Time INTO in_Time FROM Appointment WHERE ID = in_AppointmentID;
     END IF;
 
     -- Update existing appointment
     UPDATE Appointment
-    SET Time = in_NewTime, Date = in_NewDate
+    SET Date = in_Date, Time = in_Time
     WHERE ID = in_AppointmentID;
 END//
 DELIMITER ;
@@ -257,7 +262,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_appointmentPerPatient//
 CREATE PROCEDURE p_appointmentPerPatient(IN in_PatientID INT)
 BEGIN
-    SELECT a.ID, a.Time, a.Date FROM Appointment a
+    SELECT a.ID, a.Date, a.Time FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     WHERE a.PatientID = in_PatientID;
 END//
@@ -271,14 +276,18 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Appointment date and time is past now.";
     END IF;
 END//
+DELIMITER ;
 
+DELIMITER //
 DROP TRIGGER IF EXISTS tr_ins_checkFutureTimestamp//
 CREATE TRIGGER tr_ins_checkFutureTimestamp
 BEFORE INSERT ON Appointment FOR EACH ROW
 BEGIN
     CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
 END//
+DELIMITER ;
 
+DELIMITER //
 DROP TRIGGER IF EXISTS tr_upd_checkFutureTimestamp//
 CREATE TRIGGER tr_upd_checkFutureTimestamp
 BEFORE UPDATE ON Appointment FOR EACH ROW
