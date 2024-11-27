@@ -214,37 +214,6 @@ END//
 DELIMITER ;
 
 DELIMITER //
-DROP PROCEDURE IF EXISTS p_viewAppointment//
-CREATE PROCEDURE p_viewAppointment(IN in_PatientID INT)
-BEGIN
-    -- View existing appointment with ID changed for actual values
-    SELECT a.ID,
-        concat_ws(" ", p.Name, p.LastName1, p.LastName2) AS Patient,
-        concat_ws(" ", d.Name, d.LastName1, d.LastName2) AS Doctor,
-        s.Name AS Specialty, o.Name AS Office, a.Date, a.Time
-    FROM Appointment a
-    INNER JOIN Patient p ON p.ID = a.PatientID
-    INNER JOIN Doctor d ON d.ID = a.DoctorID
-    INNER JOIN Specialty s ON s.ID = a.SpecialtyID
-    INNER JOIN Office o ON o.ID = a.OfficeID
-    WHERE a.PatientID = in_PatientID;
-END//
-DELIMITER ;
-
-DELIMITER //
-DROP PROCEDURE IF EXISTS p_checkAppointmentID//
-CREATE PROCEDURE p_checkAppointmentID(IN in_AppointmentID INT)
-BEGIN
-    DECLARE l_MESSAGE_TEXT VARCHAR(255);
-    -- Check if AppointmentID exists
-    IF NOT EXISTS (SELECT 1 FROM Appointment WHERE ID = in_AppointmentID) THEN
-        SET l_MESSAGE_TEXT := concat("AppointmentID '", in_AppointmentID, "' does not exists.");
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = l_MESSAGE_TEXT;
-    END IF;
-END//
-DELIMITER ;
-
-DELIMITER //
 DROP PROCEDURE IF EXISTS p_updateAppointment//
 CREATE PROCEDURE p_updateAppointment(
     IN in_AppointmentID INT,
@@ -252,8 +221,6 @@ CREATE PROCEDURE p_updateAppointment(
     IN in_Time VARCHAR(25)
 )
 BEGIN
-    CALL p_checkAppointmentID(in_AppointmentID);
-    
     -- Exit if both variables are empty
     IF in_Date = "" AND in_Time = "" THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Both date and time are empty.";
@@ -270,9 +237,7 @@ BEGIN
     END IF;
 
     -- Update existing appointment
-    UPDATE Appointment
-    SET Date = in_Date, Time = in_Time
-    WHERE ID = in_AppointmentID;
+    UPDATE Appointment SET Date = in_Date, Time = in_Time WHERE ID = in_AppointmentID;
 END//
 DELIMITER ;
 
@@ -280,19 +245,35 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_deleteAppointment//
 CREATE PROCEDURE p_deleteAppointment(IN in_AppointmentID INT)
 BEGIN
-    CALL p_checkAppointmentID(in_AppointmentID);
-
     -- Delete existing appointment
     DELETE FROM Appointment WHERE ID = in_AppointmentID;
 END//
 DELIMITER ;
 
 DELIMITER //
-DROP PROCEDURE IF EXISTS p_appointmentPerPatient//
-CREATE PROCEDURE p_appointmentPerPatient(IN in_PatientID INT)
+DROP PROCEDURE IF EXISTS p_viewAppointmentsShort//
+CREATE PROCEDURE p_viewAppointmentsShort(IN in_PatientID INT)
 BEGIN
     SELECT a.ID, a.Date, a.Time FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
+    WHERE a.PatientID = in_PatientID;
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_viewAppointments//
+CREATE PROCEDURE p_viewAppointments(IN in_PatientID INT)
+BEGIN
+    -- View existing appointment with ID changed for actual values
+    SELECT a.ID,
+        concat_ws(" ", p.Name, p.LastName1, p.LastName2) AS Patient,
+        concat_ws(" ", d.Name, d.LastName1, d.LastName2) AS Doctor,
+        s.Name AS Specialty, o.Name AS Office, a.Date, a.Time
+    FROM Appointment a
+    INNER JOIN Patient p ON p.ID = a.PatientID
+    INNER JOIN Doctor d ON d.ID = a.DoctorID
+    INNER JOIN Specialty s ON s.ID = a.SpecialtyID
+    INNER JOIN Office o ON o.ID = a.OfficeID
     WHERE a.PatientID = in_PatientID;
 END//
 DELIMITER ;

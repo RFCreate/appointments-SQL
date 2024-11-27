@@ -93,9 +93,9 @@ public class Main {
             System.out.println();
             System.out.println("ID: " + patientID + ", Email: " + patientEmail);
             System.out.println("1) Create appointment");
-            System.out.println("2) View Appointment");
-            System.out.println("3) Update appointment");
-            System.out.println("4) Delete appointment");
+            System.out.println("2) Update appointment");
+            System.out.println("3) Delete appointment");
+            System.out.println("4) View Appointments");
             System.out.println("5) Go back.");
 
             try {
@@ -117,13 +117,13 @@ public class Main {
                     Appointments.createAppointment();
                     break;
                 case 2:
-                    Appointments.viewAppointment();
-                    break;
-                case 3:
                     Appointments.updateAppointment();
                     break;
-                case 4:
+                case 3:
                     Appointments.deleteAppointment();
+                    break;
+                case 4:
+                    Appointments.viewAppointments();
                     break;
                 default:
                     System.err.println("Invalid choice!");

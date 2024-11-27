@@ -68,52 +68,33 @@ public class Appointments {
         }
     }
 
-    public static void viewAppointment() {
-        try {
-            ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointment(%s);".formatted(Main.patientID));
-            ResultSetMetaData rsmd = rs.getMetaData();
-            if (!rs.next())
-                throw new SQLException("Patient does not have appointments.");
-            do {
-                System.out.println("---");
-                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                    System.out.println("%s: %s".formatted(rsmd.getColumnLabel(i), rs.getObject(i)));
-                }
-            } while (rs.next());
-            System.out.println("---");
-        } catch (SQLException sqlException) {
-            System.err.println("Error viewing appointment:");
-            System.err.println(sqlException.getMessage());
-        }
-    }
-
-    private static List<Integer> viewAppointmentsShort() throws SQLException {
-        List<Integer> appointments = new ArrayList<>();
-        ResultSet rs = Main.db.stmt.executeQuery("CALL p_appointmentPerPatient(%s)".formatted(Main.patientID));
+    private static void viewAppointmentsShort() throws SQLException {
+        ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointmentsShort(%s)".formatted(Main.patientID));
         if (!rs.next())
             throw new SQLException("Patient does not have appointments.");
         do {
-            appointments.add(rs.getInt(1));
             System.out.print("ID:" + rs.getInt(1));
             System.out.print(", Date:" + rs.getString(2));
             System.out.println(", Time:" + rs.getString(3));
         } while (rs.next());
-        return appointments;
     }
 
-    private static int checkAppointmentFromPatient() throws SQLException {
-        List<Integer> appointments = viewAppointmentsShort();
+    private static int getAppointmentId() throws SQLException {
         System.out.print("Enter Appointment ID: ");
         int appointmentID = Main.sc.nextInt();
         Main.sc.nextLine();
-        if (!appointments.contains(appointmentID))
+        ResultSet rs = Main.db.stmt.executeQuery(
+                "SELECT ID FROM Appointment WHERE ID = %s AND PatientID = %s;"
+                        .formatted(appointmentID, Main.patientID));
+        if (!rs.next())
             throw new SQLException("Patient has no appointment with ID '" + appointmentID + "'.");
         return appointmentID;
     }
 
     public static void updateAppointment() {
         try {
-            int appointmentID = checkAppointmentFromPatient();
+            viewAppointmentsShort();
+            int appointmentID = getAppointmentId();
 
             System.out.println("Leave blank to not modify.");
             System.out.print("New Appointment Date (YYYY-MM-DD): ");
@@ -139,7 +120,8 @@ public class Appointments {
 
     public static void deleteAppointment() {
         try {
-            int appointmentID = checkAppointmentFromPatient();
+            viewAppointmentsShort();
+            int appointmentID = getAppointmentId();
 
             Main.db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
             System.out.println("Success deleting appointment!");
@@ -149,6 +131,25 @@ public class Appointments {
             Main.sc.nextLine();
         } catch (SQLException sqlException) {
             System.err.println("Error deleting appointment:");
+            System.err.println(sqlException.getMessage());
+        }
+    }
+
+    public static void viewAppointments() {
+        try {
+            ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointments(%s);".formatted(Main.patientID));
+            ResultSetMetaData rsmd = rs.getMetaData();
+            if (!rs.next())
+                throw new SQLException("Patient does not have appointments.");
+            do {
+                System.out.println("---");
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    System.out.println("%s: %s".formatted(rsmd.getColumnLabel(i), rs.getObject(i)));
+                }
+            } while (rs.next());
+            System.out.println("---");
+        } catch (SQLException sqlException) {
+            System.err.println("Error viewing appointment:");
             System.err.println(sqlException.getMessage());
         }
     }
