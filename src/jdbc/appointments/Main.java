@@ -49,6 +49,7 @@ public class Main {
                 choice = 0;
             } finally {
                 sc.nextLine();
+                System.out.println();
             }
 
             if (choice == 3) {
@@ -105,6 +106,7 @@ public class Main {
                 choice = 0;
             } finally {
                 sc.nextLine();
+                System.out.println();
             }
 
             if (choice == 5) {

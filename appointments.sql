@@ -115,7 +115,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_availableOffices//
 CREATE PROCEDURE p_availableOffices()
 BEGIN
-    SELECT o.ID, o.Address, o.City, o.State, o.Name
+    SELECT o.ID, o.Name, o.Address, o.City, o.State
     FROM Office o
     INNER JOIN Doctor d ON d.OfficeID = o.ID;
 END//
@@ -135,7 +135,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS p_officeXspecialty//
 CREATE PROCEDURE p_officeXspecialty(IN in_SpecialtyID INT)
 BEGIN
-    SELECT o.ID, o.Address, o.City, o.State, o.Name
+    SELECT o.ID, o.Name, o.Address, o.City, o.State
     FROM Office o
     INNER JOIN Doctor d ON o.ID = d.OfficeID
     INNER JOIN DoctorSpecialty ds ON d.ID = ds.DoctorID

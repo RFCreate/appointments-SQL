@@ -4,9 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
 
 public class Appointments {
 
@@ -19,11 +17,9 @@ public class Appointments {
             System.out.println("---------------------");
 
             while (rs.next()) {
-                System.out.print("ID:" + rs.getInt(1));
-                System.out.print(", Name:" + rs.getString(2));
-                System.out.println(", Description:" + rs.getString(3));
+                System.out.println("ID:%s | %s:%s".formatted(
+                        rs.getInt(1), rs.getString(2), rs.getString(3)));
             }
-            System.out.println();
             System.out.print("Enter Specialty ID: ");
             int specialtyID = Main.sc.nextInt();
             Main.sc.nextLine();
@@ -34,17 +30,14 @@ public class Appointments {
             System.out.println("-------------------------------");
 
             while (rs.next()) {
-                System.out.print("ID:" + rs.getInt(1));
-                System.out.print(", Address:" + rs.getString(2));
-                System.out.print(", City:" + rs.getString(3));
-                System.out.print(", State:" + rs.getString(4));
-                System.out.println(", Name:" + rs.getString(5));
+                System.out.println("ID:%s | %s (%s, %s, %s)".formatted(
+                        rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
             }
-            System.out.println();
             System.out.print("Office ID: ");
             int officeID = Main.sc.nextInt();
             Main.sc.nextLine();
 
+            System.out.println();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
             String date = Main.sc.nextLine();
             System.out.print("Appointment Time (hh:mm): ");
@@ -73,9 +66,8 @@ public class Appointments {
         if (!rs.next())
             throw new SQLException("Patient does not have appointments.");
         do {
-            System.out.print("ID:" + rs.getInt(1));
-            System.out.print(", Date:" + rs.getString(2));
-            System.out.println(", Time:" + rs.getString(3));
+            System.out.println("ID:%s | Date:%s | Time:%s".formatted(
+                    rs.getInt(1), rs.getString(2), rs.getString(3)));
         } while (rs.next());
     }
 
