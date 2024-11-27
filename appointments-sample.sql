@@ -7,10 +7,10 @@ INSERT INTO Patient (Name, LastName1, LastName2, Email, Phone, City, State) VALU
 ("Emily","Jones","Miller","emilyjones@example.com","+1-212-555-4444","Queens","NY"),
 ("David","Garcia","Martinez","davidgarcia@example.com","+1-212-555-5555","The Bronx","NY");
 
-INSERT INTO Office (Address, City, State, Name, OpeningTime, ClosingTime) VALUES
-("123 Health St","New York","NY","HealthFirst Medical","08:00","18:00"),
-("456 Wellness Ave","Brooklyn","NY","CarePoint Clinic","09:00","17:00"),
-("789 Treatment Blvd","Manhattan","NY","City Health Center","07:00","19:00");
+INSERT INTO Office (Name, Address, City, State, OpeningTime, ClosingTime) VALUES
+("HealthFirst Medical","123 Health St","New York","NY","08:00","18:00"),
+("CarePoint Clinic","456 Wellness Ave","Brooklyn","NY","09:00","17:00"),
+("City Health Center","789 Treatment Blvd","Manhattan","NY","07:00","19:00");
 
 INSERT INTO Doctor (Name, LastName1, LastName2, Email, Phone, OfficeID) VALUES
 ("John","Doe","Smith","johndoe@example.com","+1-212-555-1234","1"),
