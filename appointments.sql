@@ -59,11 +59,40 @@ CREATE TABLE Appointment (
     ScheduleTime TIME NOT NULL,
     Date DATE NOT NULL,
     Time TIME NOT NULL,
+    CONSTRAINT uniq_appointment UNIQUE KEY (DoctorID, Date, Time),
     CONSTRAINT fk_appointment_patient FOREIGN KEY (PatientID) REFERENCES Patient (ID),
     CONSTRAINT fk_appointment_doctor FOREIGN KEY (DoctorID) REFERENCES Doctor (ID),
     CONSTRAINT fk_appointment_specialty FOREIGN KEY (SpecialtyID) REFERENCES Specialty (ID),
     CONSTRAINT fk_appointment_office FOREIGN KEY (OfficeID) REFERENCES Office (ID)
 );
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS p_checkFutureTimestamp//
+CREATE PROCEDURE p_checkFutureTimestamp(IN in_Date DATE, IN in_Time TIME)
+BEGIN
+    IF timestamp(in_Date, in_Time) < current_timestamp() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Appointment date and time is past now.";
+    END IF;
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP TRIGGER IF EXISTS tr_ins_checkFutureTimestamp//
+CREATE TRIGGER tr_ins_checkFutureTimestamp
+BEFORE INSERT ON Appointment FOR EACH ROW
+BEGIN
+    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
+END//
+DELIMITER ;
+
+DELIMITER //
+DROP TRIGGER IF EXISTS tr_upd_checkFutureTimestamp//
+CREATE TRIGGER tr_upd_checkFutureTimestamp
+BEFORE UPDATE ON Appointment FOR EACH ROW
+BEGIN
+    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
+END//
+DELIMITER ;
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_createPatient//
@@ -226,7 +255,7 @@ BEGIN
     CALL p_checkAppointmentID(in_AppointmentID);
     
     -- Exit if both variables are empty
-    IF in_Date = "" AND in_Date = "" THEN
+    IF in_Date = "" AND in_Time = "" THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Both date and time are empty.";
     END IF;
 
@@ -265,33 +294,5 @@ BEGIN
     SELECT a.ID, a.Date, a.Time FROM Appointment a
     INNER JOIN Patient p ON p.ID = a.PatientID
     WHERE a.PatientID = in_PatientID;
-END//
-DELIMITER ;
-
-DELIMITER //
-DROP PROCEDURE IF EXISTS p_checkFutureTimestamp//
-CREATE PROCEDURE p_checkFutureTimestamp(IN in_Date DATE, IN in_Time TIME)
-BEGIN
-    IF timestamp(in_Date, in_Time) < current_timestamp() THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Appointment date and time is past now.";
-    END IF;
-END//
-DELIMITER ;
-
-DELIMITER //
-DROP TRIGGER IF EXISTS tr_ins_checkFutureTimestamp//
-CREATE TRIGGER tr_ins_checkFutureTimestamp
-BEFORE INSERT ON Appointment FOR EACH ROW
-BEGIN
-    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
-END//
-DELIMITER ;
-
-DELIMITER //
-DROP TRIGGER IF EXISTS tr_upd_checkFutureTimestamp//
-CREATE TRIGGER tr_upd_checkFutureTimestamp
-BEFORE UPDATE ON Appointment FOR EACH ROW
-BEGIN
-    CALL p_checkFutureTimestamp(NEW.Date, NEW.Time);
 END//
 DELIMITER ;
