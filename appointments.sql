@@ -59,7 +59,7 @@ CREATE TABLE Appointment (
     ScheduleTime TIME NOT NULL,
     Date DATE NOT NULL,
     Time TIME NOT NULL,
-    CONSTRAINT uniq_appointment UNIQUE KEY (DoctorID, Date, Time),
+    CONSTRAINT uniq_doctor_date_time UNIQUE KEY (DoctorID, Date, Time),
     CONSTRAINT fk_appointment_patient FOREIGN KEY (PatientID) REFERENCES Patient (ID),
     CONSTRAINT fk_appointment_doctor FOREIGN KEY (DoctorID) REFERENCES Doctor (ID),
     CONSTRAINT fk_appointment_specialty FOREIGN KEY (SpecialtyID) REFERENCES Specialty (ID),
@@ -225,11 +225,6 @@ CREATE PROCEDURE p_updateAppointment(
     IN in_Time VARCHAR(25)
 )
 BEGIN
-    -- Exit if both variables are empty
-    IF in_Date = "" AND in_Time = "" THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Both date and time are empty.";
-    END IF;
-
     -- Fill variables if passed empty
     IF in_Date = "" THEN
         SELECT Date INTO in_Date FROM Appointment WHERE ID = in_AppointmentID;
