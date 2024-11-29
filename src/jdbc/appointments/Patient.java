@@ -53,7 +53,7 @@ public class Patient {
     }
 
     private static int getIdFromEmail(String email) throws SQLException {
-        String query = String.format("SELECT ID FROM Patient WHERE Email = '%s';", email);
+        String query = String.format("SELECT ID FROM Patient WHERE Email = '%s'", email);
         ResultSet rs = Main.db.stmt.executeQuery(query);
         if (!rs.next())
             throw new SQLException("Patient with email '" + email + "' does not exist.");
@@ -61,7 +61,7 @@ public class Patient {
     }
 
     public static String getEmailFromId(int id) throws SQLException {
-        String query = String.format("SELECT Email FROM Patient WHERE ID = '%s';", id);
+        String query = String.format("SELECT Email FROM Patient WHERE ID = '%s'", id);
         ResultSet rs = Main.db.stmt.executeQuery(query);
         if (!rs.next())
             throw new SQLException("Patient with ID '" + id + "' does not exist.");

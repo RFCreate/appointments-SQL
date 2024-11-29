@@ -220,6 +220,7 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_updateAppointment//
 CREATE PROCEDURE p_updateAppointment(
+    IN in_PatientID INT,
     IN in_AppointmentID INT,
     IN in_Date VARCHAR(25),
     IN in_Time VARCHAR(25)
@@ -227,25 +228,28 @@ CREATE PROCEDURE p_updateAppointment(
 BEGIN
     -- Fill variables if passed empty
     IF in_Date = "" THEN
-        SELECT Date INTO in_Date FROM Appointment WHERE ID = in_AppointmentID;
+        SELECT Date INTO in_Date FROM Appointment WHERE ID = in_AppointmentID AND PatientID = in_PatientID;
     END IF;
 
     -- Fill variables if passed empty
     IF in_Time = "" THEN
-        SELECT Time INTO in_Time FROM Appointment WHERE ID = in_AppointmentID;
+        SELECT Time INTO in_Time FROM Appointment WHERE ID = in_AppointmentID AND PatientID = in_PatientID;
     END IF;
 
     -- Update existing appointment
-    UPDATE Appointment SET Date = in_Date, Time = in_Time WHERE ID = in_AppointmentID;
+    UPDATE Appointment SET Date = in_Date, Time = in_Time WHERE ID = in_AppointmentID AND PatientID = in_PatientID;
 END//
 DELIMITER ;
 
 DELIMITER //
 DROP PROCEDURE IF EXISTS p_deleteAppointment//
-CREATE PROCEDURE p_deleteAppointment(IN in_AppointmentID INT)
+CREATE PROCEDURE p_deleteAppointment(
+    IN in_PatientID INT,
+    IN in_AppointmentID INT
+)
 BEGIN
     -- Delete existing appointment
-    DELETE FROM Appointment WHERE ID = in_AppointmentID;
+    DELETE FROM Appointment WHERE ID = in_AppointmentID AND PatientID = in_PatientID;
 END//
 DELIMITER ;
 

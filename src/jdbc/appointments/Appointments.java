@@ -11,7 +11,7 @@ public class Appointments {
     public static void createAppointment() {
         ResultSet rs = null;
         try {
-            rs = Main.db.stmt.executeQuery("CALL p_availableSpecialties();");
+            rs = Main.db.stmt.executeQuery("CALL p_availableSpecialties()");
             System.out.println();
             System.out.println("Available Specialties");
             System.out.println("---------------------");
@@ -24,7 +24,7 @@ public class Appointments {
             int specialtyID = Main.sc.nextInt();
             Main.sc.nextLine();
 
-            rs = Main.db.stmt.executeQuery("CALL p_officeXspecialty(%s);".formatted(specialtyID));
+            rs = Main.db.stmt.executeQuery("CALL p_officeXspecialty(%s)".formatted(specialtyID));
             System.out.println();
             System.out.println("Available Offices for specialty");
             System.out.println("-------------------------------");
@@ -76,7 +76,7 @@ public class Appointments {
         int appointmentID = Main.sc.nextInt();
         Main.sc.nextLine();
         ResultSet rs = Main.db.stmt.executeQuery(
-                "SELECT ID FROM Appointment WHERE ID = %s AND PatientID = %s;"
+                "SELECT ID FROM Appointment WHERE ID = %s AND PatientID = %s"
                         .formatted(appointmentID, Main.patientID));
         if (!rs.next())
             throw new SQLException("Patient has no appointment with ID '" + appointmentID + "'.");
@@ -94,11 +94,12 @@ public class Appointments {
             System.out.print("New Appointment Time (hh:mm): ");
             String time = Main.sc.nextLine();
 
-            CallableStatement stmt = Main.db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?)}");
-            stmt.setInt(1, appointmentID);
-            stmt.setString(2, date);
-            stmt.setString(3, time);
-            stmt.execute();
+            CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_updateAppointment(?, ?, ?, ?)}");
+            cstmt.setInt(1, Main.patientID);
+            cstmt.setInt(2, appointmentID);
+            cstmt.setString(3, date);
+            cstmt.setString(4, time);
+            cstmt.execute();
             System.out.println("Success updating appointment!");
 
         } catch (InputMismatchException e) {
@@ -115,7 +116,10 @@ public class Appointments {
             viewAppointmentsShort();
             int appointmentID = getAppointmentId();
 
-            Main.db.stmt.executeQuery("CALL p_deleteAppointment(%s);".formatted(appointmentID));
+            CallableStatement cstmt = Main.db.conn.prepareCall("{CALL p_deleteAppointment(?, ?)}");
+            cstmt.setInt(1, Main.patientID);
+            cstmt.setInt(2, appointmentID);
+            cstmt.execute();
             System.out.println("Success deleting appointment!");
 
         } catch (InputMismatchException e) {
@@ -129,7 +133,7 @@ public class Appointments {
 
     public static void viewAppointments() {
         try {
-            ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointments(%s);".formatted(Main.patientID));
+            ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointments(%s)".formatted(Main.patientID));
             ResultSetMetaData rsmd = rs.getMetaData();
             if (!rs.next())
                 throw new SQLException("Patient does not have appointments.");
