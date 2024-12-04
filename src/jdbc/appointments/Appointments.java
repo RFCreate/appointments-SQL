@@ -22,14 +22,17 @@ public class Appointments {
             validIds.clear();
             while (rs.next()) {
                 validIds.add(rs.getInt(1));
-                System.out.println("ID:%s | %s:%s".formatted(
-                        rs.getInt(1), rs.getString(2), rs.getString(3)));
+                System.out.println("%s) %s:%s".formatted(
+                        validIds.size(), rs.getString(2), rs.getString(3)));
             }
             System.out.print("Enter Specialty ID: ");
             int specialtyID = Main.sc.nextInt();
             Main.sc.nextLine();
-            if (!validIds.contains(specialtyID))
+            try {
+                specialtyID = validIds.get(specialtyID - 1);
+            } catch (IndexOutOfBoundsException e) {
                 throw new SQLException("Specialty ID not in list!");
+            }
 
             rs = Main.db.stmt.executeQuery("CALL p_officeXspecialty(%s)".formatted(specialtyID));
             System.out.println();
@@ -39,14 +42,17 @@ public class Appointments {
             validIds.clear();
             while (rs.next()) {
                 validIds.add(rs.getInt(1));
-                System.out.println("ID:%s | %s (%s, %s, %s)".formatted(
-                        rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+                System.out.println("%s) %s (%s, %s, %s)".formatted(
+                        validIds.size(), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
             }
             System.out.print("Enter Office ID: ");
             int officeID = Main.sc.nextInt();
             Main.sc.nextLine();
-            if (!validIds.contains(officeID))
-                throw new SQLException("Office ID not in list!");
+            try {
+                officeID = validIds.get(officeID - 1);
+            } catch (IndexOutOfBoundsException e) {
+                throw new SQLException("Specialty ID not in list!");
+            }
 
             System.out.println();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
@@ -76,10 +82,13 @@ public class Appointments {
         ResultSet rs = Main.db.stmt.executeQuery("CALL p_viewAppointmentsShort(%s)".formatted(Main.patientID));
         if (!rs.next())
             throw new SQLException("Patient does not have appointments.");
+        String appointment = "";
         do {
-            System.out.println("ID:%s | Date:%s | Time:%s".formatted(
-                    rs.getInt(1), rs.getString(2), rs.getString(3)));
+            appointment = "ID:%s | Date:%s | Time:%s".formatted(
+                    rs.getInt(1), rs.getString(2), rs.getString(3));
+            System.out.println(appointment);
         } while (rs.next());
+        System.out.println("-".repeat(appointment.length()));
     }
 
     private static int getAppointmentId() throws SQLException {
@@ -99,7 +108,7 @@ public class Appointments {
             viewAppointmentsShort();
             int appointmentID = getAppointmentId();
 
-            System.out.println("Leave blank to not modify.");
+            System.out.println("Leave it blank to not modify.");
             System.out.print("New Appointment Date (YYYY-MM-DD): ");
             String date = Main.sc.nextLine();
             System.out.print("New Appointment Time (hh:mm): ");
