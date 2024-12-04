@@ -60,11 +60,11 @@ public class Patient {
         return rs.getInt(1);
     }
 
-    public static String getEmailFromId(int id) throws SQLException {
-        String query = String.format("SELECT Email FROM Patient WHERE ID = '%s'", id);
+    public static String getContact(int id) throws SQLException {
+        String query = String.format("SELECT Name, LastName1, LastName2, Email FROM Patient WHERE ID = '%s'", id);
         ResultSet rs = Main.db.stmt.executeQuery(query);
         if (!rs.next())
             throw new SQLException("Patient with ID '" + id + "' does not exist.");
-        return rs.getString(1);
+        return String.format("%s %s %s (%s)", rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
     }
 }
