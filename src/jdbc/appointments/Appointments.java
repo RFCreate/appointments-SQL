@@ -4,38 +4,49 @@ import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 
 public class Appointments {
 
     public static void createAppointment() {
         ResultSet rs = null;
+        List<Integer> validIds = new ArrayList<>();
         try {
             rs = Main.db.stmt.executeQuery("CALL p_availableSpecialties()");
             System.out.println();
             System.out.println("Available Specialties");
             System.out.println("---------------------");
 
+            validIds.clear();
             while (rs.next()) {
+                validIds.add(rs.getInt(1));
                 System.out.println("ID:%s | %s:%s".formatted(
                         rs.getInt(1), rs.getString(2), rs.getString(3)));
             }
             System.out.print("Enter Specialty ID: ");
             int specialtyID = Main.sc.nextInt();
             Main.sc.nextLine();
+            if (!validIds.contains(specialtyID))
+                throw new SQLException("Specialty ID not in list!");
 
             rs = Main.db.stmt.executeQuery("CALL p_officeXspecialty(%s)".formatted(specialtyID));
             System.out.println();
             System.out.println("Available Offices for specialty");
             System.out.println("-------------------------------");
 
+            validIds.clear();
             while (rs.next()) {
+                validIds.add(rs.getInt(1));
                 System.out.println("ID:%s | %s (%s, %s, %s)".formatted(
                         rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
             }
-            System.out.print("Office ID: ");
+            System.out.print("Enter Office ID: ");
             int officeID = Main.sc.nextInt();
             Main.sc.nextLine();
+            if (!validIds.contains(officeID))
+                throw new SQLException("Office ID not in list!");
 
             System.out.println();
             System.out.print("Appointment Date (YYYY-MM-DD): ");
