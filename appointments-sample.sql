@@ -21,7 +21,16 @@ INSERT INTO Doctor (Name, LastName1, LastName2, Email, Phone, OfficeID) VALUES
 ("Olivia","Green","Harris","oliviagreen@example.com","+1-212-555-6789","2"),
 ("Michael","Lee","Clark","michaellee@example.com","+1-212-555-7890","3"),
 ("Sophia","King","Scott","sophiaking@example.com","+1-212-555-8901","3"),
-("James","Adams","Turner","jamesadams@example.com","+1-212-555-9012","3");
+("James","Adams","Turner","jamesadams@example.com","+1-212-555-9012","3"),
+("Olivia","Martinez","Lopez","olivia.martinez@example.com","+1 212-555-1122","1"),
+("Liam","Garcia","Rodriguez","liam.garcia@example.com","+1 718-555-2233","1"),
+("Sophia","Miller","Perez","sophia.miller@example.com","+1 917-555-3344","1"),
+("Benjamin","Davis","Clark","benjamin.davis@example.com","+1 212-555-4455","2"),
+("Isabella","Wilson","Walker","isabella.wilson@example.com","+1 718-555-5566","2"),
+("Noah","Moore","Allen","noah.moore@example.com","+1 917-555-6677","2"),
+("Charlotte","Taylor","Young","charlotte.taylor@example.com","+1 212-555-7788","3"),
+("Ethan","Anderson","King","ethan.anderson@example.com","+1 718-555-8899","3"),
+("Amelia","Thomas","Scott","amelia.thomas@example.com","+1 917-555-9900","3");
 
 INSERT INTO Specialty (Name, Description) VALUES
 ("Cardiology","Specialized in diagnosing and treating heart conditions and diseases."),
@@ -44,7 +53,16 @@ INSERT INTO DoctorSpecialty (DoctorID, SpecialtyID) VALUES
 ("6","6"),
 ("7","7"),
 ("8","8"),
-("9","9");
+("9","9"),
+("10","1"),
+("11","2"),
+("12","3"),
+("13","4"),
+("14","5"),
+("15","6"),
+("16","7"),
+("17","8"),
+("18","9");
 
 INSERT INTO Appointment (PatientID, DoctorID, SpecialtyID, OfficeID, ScheduleDate, ScheduleTime, Date, Time) VALUES
 ("1","1","1","1","2024-11-21","11:00:35","2124-11-21","11:30:00"),
