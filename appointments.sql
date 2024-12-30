@@ -166,7 +166,7 @@ RETURNS INT DETERMINISTIC
 BEGIN
     DECLARE l_exit INT DEFAULT FALSE;
     DECLARE l_DoctorID, l_curDoctorID INT;
-    DECLARE l_AppointmentsNum, l_curAppointmentsNum INT DEFAULT 0;
+    DECLARE l_AppointmentsNum, l_curAppointmentsNum INT DEFAULT 2147483647;
     DECLARE c_doctors CURSOR FOR
         SELECT d.ID FROM Doctor d
         INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
@@ -180,7 +180,7 @@ BEGIN
           LEAVE loop_doctors;
         END IF;
         SELECT count(1) INTO l_curAppointmentsNum FROM Appointment WHERE DoctorID = l_curDoctorID;
-        IF l_curAppointmentsNum > l_AppointmentsNum THEN
+        IF l_curAppointmentsNum < l_AppointmentsNum THEN
             SET l_AppointmentsNum := l_curAppointmentsNum;
             SET l_DoctorID := l_curDoctorID;
         END IF;
