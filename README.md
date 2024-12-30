@@ -6,10 +6,6 @@ This project is a demo for testing development of a MySQL database based on medi
 
 1. Clone the repository.
 
-```
-git clone https://github.com/shyguyCreate/appointmentsSQL.git
-```
-
 2. Create the appointments database.
 
 ```
