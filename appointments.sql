@@ -164,11 +164,29 @@ DROP FUNCTION IF EXISTS f_getDoctor//
 CREATE FUNCTION f_getDoctor(in_SpecialtyID INT, in_OfficeID INT)
 RETURNS INT DETERMINISTIC
 BEGIN
-    DECLARE l_DoctorID INT;
-    SELECT d.ID INTO l_DoctorID FROM Doctor d
-    INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
-    WHERE de.SpecialtyID = in_SpecialtyID AND d.OfficeID = in_OfficeID
-    LIMIT 1;
+    DECLARE l_exit INT DEFAULT FALSE;
+    DECLARE l_DoctorID, l_curDoctorID INT;
+    DECLARE l_AppointmentsNum, l_curAppointmentsNum INT DEFAULT 0;
+    DECLARE c_doctors CURSOR FOR
+        SELECT d.ID FROM Doctor d
+        INNER JOIN DoctorSpecialty de ON d.ID = de.DoctorID
+        WHERE de.SpecialtyID = in_SpecialtyID AND d.OfficeID = in_OfficeID;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET l_exit := TRUE;
+
+    OPEN c_doctors;
+    loop_doctors: LOOP
+        FETCH c_doctors INTO l_curDoctorID;
+        IF l_exit THEN
+          LEAVE loop_doctors;
+        END IF;
+        SELECT count(1) INTO l_curAppointmentsNum FROM Appointment WHERE DoctorID = l_curDoctorID;
+        IF l_curAppointmentsNum > l_AppointmentsNum THEN
+            SET l_AppointmentsNum := l_curAppointmentsNum;
+            SET l_DoctorID := l_curDoctorID;
+        END IF;
+    END LOOP;
+
+    CLOSE c_doctors;
     RETURN l_DoctorID;
 END//
 DELIMITER ;
