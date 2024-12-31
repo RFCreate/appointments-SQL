@@ -164,8 +164,8 @@ DROP FUNCTION IF EXISTS f_getDoctor//
 CREATE FUNCTION f_getDoctor(in_SpecialtyID INT, in_OfficeID INT)
 RETURNS INT DETERMINISTIC
 BEGIN
-    DECLARE l_exit INT DEFAULT FALSE;
-    DECLARE l_DoctorID, l_curDoctorID INT;
+    DECLARE l_exit TINYINT DEFAULT FALSE;
+    DECLARE l_DoctorID, l_curDoctorID INT DEFAULT 0;
     DECLARE l_AppointmentsNum, l_curAppointmentsNum INT DEFAULT 2147483647;
     DECLARE c_doctors CURSOR FOR
         SELECT d.ID FROM Doctor d
@@ -179,10 +179,18 @@ BEGIN
         IF l_exit THEN
           LEAVE loop_doctors;
         END IF;
-        SELECT count(1) INTO l_curAppointmentsNum FROM Appointment WHERE DoctorID = l_curDoctorID;
+        -- Get the doctor with fewer appointments starting now
+        SELECT count(1) INTO l_curAppointmentsNum FROM Appointment
+            WHERE DoctorID = l_curDoctorID AND timestamp(Date, Time) > current_timestamp();
         IF l_curAppointmentsNum < l_AppointmentsNum THEN
             SET l_AppointmentsNum := l_curAppointmentsNum;
             SET l_DoctorID := l_curDoctorID;
+        ELSEIF l_curAppointmentsNum = l_AppointmentsNum THEN
+            -- When two doctors have the same number of appointments,
+            -- get the doctor with fewer appointments overall
+            SELECT DoctorID INTO l_DoctorID FROM Appointment
+            WHERE DoctorID IN (l_curDoctorID, l_DoctorID)
+            GROUP BY DoctorID ORDER BY count(1) ASC LIMIT 1;
         END IF;
     END LOOP;
 
